@@ -1,0 +1,72 @@
+package project.mr_smoothy.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import project.mr_smoothy.dto.request.FruitCreateRequest;
+import project.mr_smoothy.dto.request.FruitUpdateRequest;
+import project.mr_smoothy.dto.response.FruitResponse;
+import project.mr_smoothy.entity.Fruit;
+import project.mr_smoothy.repository.FruitRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class FruitService {
+
+    private final FruitRepository fruitRepository;
+
+    public FruitResponse create(FruitCreateRequest request) {
+        if (fruitRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new RuntimeException("Fruit name already exists");
+        }
+        Fruit fruit = new Fruit();
+        fruit.setName(request.getName());
+        fruit.setImageUrl(request.getImageUrl());
+        fruit.setPricePerUnit(request.getPricePerUnit());
+        fruit.setActive(request.getActive() != null ? request.getActive() : true);
+        Fruit saved = fruitRepository.save(fruit);
+        return toResponse(saved);
+    }
+
+    public FruitResponse update(Long id, FruitUpdateRequest request) {
+        Fruit fruit = fruitRepository.findById(id).orElseThrow(() -> new RuntimeException("Fruit not found"));
+        if (request.getName() != null) fruit.setName(request.getName());
+        if (request.getImageUrl() != null) fruit.setImageUrl(request.getImageUrl());
+        if (request.getPricePerUnit() != null) fruit.setPricePerUnit(request.getPricePerUnit());
+        if (request.getActive() != null) fruit.setActive(request.getActive());
+        return toResponse(fruitRepository.save(fruit));
+    }
+
+    public void delete(Long id) {
+        if (!fruitRepository.existsById(id)) throw new RuntimeException("Fruit not found");
+        fruitRepository.deleteById(id);
+    }
+
+    public FruitResponse get(Long id) {
+        return fruitRepository.findById(id).map(this::toResponse).orElseThrow(() -> new RuntimeException("Fruit not found"));
+    }
+
+    public List<FruitResponse> list() {
+        return fruitRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    public List<FruitResponse> listActive() {
+        return fruitRepository.findByActiveTrue().stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    private FruitResponse toResponse(Fruit f) {
+        return FruitResponse.builder()
+                .id(f.getId())
+                .name(f.getName())
+                .imageUrl(f.getImageUrl())
+                .pricePerUnit(f.getPricePerUnit())
+                .active(f.getActive())
+                .build();
+    }
+}
+
+
