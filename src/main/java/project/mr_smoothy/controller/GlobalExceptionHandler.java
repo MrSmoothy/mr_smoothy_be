@@ -19,8 +19,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
         log.error("Runtime exception occurred: {}", ex.getMessage());
+        
+        // ซ่อน technical error messages จาก user
+        String userMessage = ex.getMessage();
+        if (userMessage != null) {
+            // กรอง technical errors
+            if (userMessage.contains("allowCredentials") || 
+                userMessage.contains("allowedOrigins") ||
+                userMessage.contains("CORS") ||
+                userMessage.contains("Access-Control")) {
+                userMessage = "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง";
+            }
+        } else {
+            userMessage = "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง";
+        }
+        
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage()));
+                .body(ApiResponse.error(userMessage));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -44,11 +59,39 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleNoResourceFoundException(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        log.error("Resource not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("API endpoint not found: " + ex.getResourcePath()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGenericException(Exception ex) {
         log.error("Unexpected exception occurred: {}", ex.getMessage(), ex);
+        
+        // ซ่อน technical error messages จาก user
+        String message = ex.getMessage();
+        if (message != null) {
+            // กรอง technical errors
+            if (message.contains("allowCredentials") || 
+                message.contains("allowedOrigins") ||
+                message.contains("CORS") ||
+                message.contains("Access-Control")) {
+                message = "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง";
+            } else if (message.contains("IllegalStateException") ||
+                       message.contains("ServletException")) {
+                message = "เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง";
+            }
+        }
+        
+        if (message == null || message.isEmpty()) {
+            message = "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง";
+        }
+        
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An unexpected error occurred"));
+                .body(ApiResponse.error(message));
     }
 }
 

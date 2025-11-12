@@ -16,7 +16,6 @@ import project.mr_smoothy.service.AuthService;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;

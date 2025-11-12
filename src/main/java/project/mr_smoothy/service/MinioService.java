@@ -1,17 +1,14 @@
 package project.mr_smoothy.service;
 
 import io.minio.*;
-import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.annotation.PostConstruct;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 @Service
@@ -24,8 +21,17 @@ public class MinioService {
     @Value("${minio.endpoint:http://localhost:9000}")
     private String endpoint;
 
+    @Value("${minio.publicEndpoint:http://localhost:9000}")
+    private String publicEndpoint;
+
     @Value("${minio.bucketName:mr-smoothy-images}")
     private String bucketName;
+    
+    @PostConstruct
+    public void init() {
+        log.info("MinIO Configuration - Internal endpoint: {}, Public endpoint: {}, Bucket: {}", 
+                endpoint, publicEndpoint, bucketName);
+    }
     
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -82,7 +88,14 @@ public class MinioService {
     }
 
     public String getFileUrl(String objectName) {
-        return endpoint + "/" + bucketName + "/" + objectName;
+        // MinIO public URL format: http://public-endpoint/bucket-name/object-path
+        // Use publicEndpoint for frontend access (localhost:9000), not internal endpoint (minio:9000)
+        // Remove leading slash if exists
+        String cleanObjectName = objectName.startsWith("/") ? objectName.substring(1) : objectName;
+        String url = publicEndpoint + "/" + bucketName + "/" + cleanObjectName;
+        log.info("Generated MinIO public URL: {} (using publicEndpoint: {}, internal endpoint: {})", 
+                url, publicEndpoint, endpoint);
+        return url;
     }
 
     public InputStream downloadFile(String objectName) throws Exception {

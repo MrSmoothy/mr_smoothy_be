@@ -1,0 +1,524 @@
+{
+  "info": {
+    "name": "Mr. Smoothy - Fruits Collection",
+    "description": "JSON สำหรับเพิ่มผลไม้และผักลง database ผ่าน Postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "กล้วย (Banana)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE",
+            "description": "ใส่ JWT token ที่ได้จาก login"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"กล้วย\",\n  \"description\": \"กล้วยสุกหวาน อุดมไปด้วยโพแทสเซียมและวิตามิน B6\",\n  \"pricePerUnit\": 25.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "สตรอเบอรี่ (Strawberry)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"สตรอเบอรี่\",\n  \"description\": \"สตรอเบอรี่สด หวานอมเปรี้ยว อุดมด้วยวิตามิน C\",\n  \"pricePerUnit\": 35.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "เลม่อน (Lemon)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"เลม่อน\",\n  \"description\": \"เลม่อนสด เปรี้ยวสดชื่น อุดมด้วยวิตามิน C\",\n  \"pricePerUnit\": 20.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "บลูเบอรี่ (Blueberry)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"บลูเบอรี่\",\n  \"description\": \"บลูเบอรี่สด หวาน อุดมด้วยสารต้านอนุมูลอิสระ\",\n  \"pricePerUnit\": 40.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "บร็อคโคลี่ (Broccoli)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"บร็อคโคลี่\",\n  \"description\": \"บร็อคโคลี่สด กรอบ อุดมด้วยไฟเบอร์และวิตามิน K\",\n  \"pricePerUnit\": 30.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "แอปเปิล (Apple)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"แอปเปิล\",\n  \"description\": \"แอปเปิลแดง กรอบ หวาน อุดมด้วยไฟเบอร์\",\n  \"pricePerUnit\": 30.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "มะนาว (Lime)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"มะนาว\",\n  \"description\": \"มะนาวสด เปรี้ยว อุดมด้วยวิตามิน C\",\n  \"pricePerUnit\": 15.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "ส้ม (Orange)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"ส้ม\",\n  \"description\": \"ส้มหวาน อุดมด้วยวิตามิน C\",\n  \"pricePerUnit\": 28.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "องุ่น (Grape)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"องุ่น\",\n  \"description\": \"องุ่นดำ หวาน อุดมด้วยสารต้านอนุมูลอิสระ\",\n  \"pricePerUnit\": 45.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "แคนตาลูป (Cantaloupe)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"แคนตาลูป\",\n  \"description\": \"แคนตาลูปหวาน ฉ่ำน้ำ อุดมด้วยวิตามิน A\",\n  \"pricePerUnit\": 50.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "แตงโม (Watermelon)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"แตงโม\",\n  \"description\": \"แตงโมหวาน ฉ่ำน้ำ อุดมด้วยไลโคปีน\",\n  \"pricePerUnit\": 35.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "แครอท (Carrot)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"แครอท\",\n  \"description\": \"แครอทสด กรอบ อุดมด้วยเบต้าแคโรทีน\",\n  \"pricePerUnit\": 25.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "ผักโขม (Spinach)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"ผักโขม\",\n  \"description\": \"ผักโขมสด อุดมด้วยธาตุเหล็กและวิตามิน K\",\n  \"pricePerUnit\": 22.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "มะเขือเทศ (Tomato)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"มะเขือเทศ\",\n  \"description\": \"มะเขือเทศสด อุดมด้วยไลโคปีน\",\n  \"pricePerUnit\": 28.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "กีวี (Kiwi)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"กีวี\",\n  \"description\": \"กีวีหวานอมเปรี้ยว อุดมด้วยวิตามิน C และไฟเบอร์\",\n  \"pricePerUnit\": 38.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "แพชชั่นฟรุต (Passion Fruit)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"แพชชั่นฟรุต\",\n  \"description\": \"แพชชั่นฟรุต เปรี้ยวหวาน อุดมด้วยวิตามิน A และ C\",\n  \"pricePerUnit\": 42.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "มะม่วง (Mango)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"มะม่วง\",\n  \"description\": \"มะม่วงสุก หวาน อุดมด้วยวิตามิน A\",\n  \"pricePerUnit\": 32.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "สับปะรด (Pineapple)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"สับปะรด\",\n  \"description\": \"สับปะรดหวาน ฉ่ำน้ำ อุดมด้วยวิตามิน C\",\n  \"pricePerUnit\": 30.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    },
+    {
+      "name": "เซเลอรี่ (Celery)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"เซเลอรี่\",\n  \"description\": \"เซเลอรี่สด กรอบ อุดมด้วยไฟเบอร์และวิตามิน K\",\n  \"pricePerUnit\": 20.00,\n  \"imageUrl\": null,\n  \"active\": true\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/fruits",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "admin", "fruits"]
+        }
+      }
+    }
+  ]
+}
+

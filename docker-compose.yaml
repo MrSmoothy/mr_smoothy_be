@@ -5,47 +5,47 @@ services:
     image: mysql:8.0
     container_name: mr_smoothy_db
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mr_smoothy
+      MYSQL_USER: smoothy
+      MYSQL_PASSWORD: smoothypass
     ports:
-      - "${DB_PORT:-3306}:3306"
-    command: ["mysqld", "--default-authentication-plugin=mysql_native_password", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+      - "3306:3306"
+    command: ["mysqld", "--bind-address=0.0.0.0", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -prootpass || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   phpmyadmin:
     image: phpmyadmin:5
     container_name: mr_smoothy_phpmyadmin
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       PMA_HOST: db
       PMA_USER: root
-      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PMA_PASSWORD: rootpass
     ports:
-      - "${PMA_PORT:-8081}:80"
+      - "8081:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   minio:
     image: minio/minio:latest
     container_name: mr_smoothy_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
-    env_file:
-      - .env
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
     ports:
-      - "${MINIO_API_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
     healthcheck:
@@ -54,34 +54,39 @@ services:
       timeout: 20s
       retries: 3
 
-  app:
+
+
+  api:
     build: .
-    container_name: mr_smoothy_app
+    container_name: mr_smoothy_api
     restart: unless-stopped
-    env_file:
-      - .env
     ports:
-      - "${APP_PORT:-8080}:8080"
+      - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mr_smoothy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: smoothy
+      SPRING_DATASOURCE_PASSWORD: smoothypass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "true"
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
-      SERVER_PORT: ${APP_PORT:-8080}
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: dev
       # JWT
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      JWT_SECRET: 9e62b0c8a4f1d2e3b5c6a7981f2d3c4b5a6e7f8190abcdeffedcba0987654321
+      JWT_EXPIRATION: 86400000
       # MinIO
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      # Internal endpoint for backend to connect to MinIO
+      MINIO_ENDPOINT: http://minio:9000
+      # Public endpoint for frontend to access images (must be accessible from browser)
+      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
+      MINIO_BUCKET_NAME: mr-smoothy-images
     depends_on:
-      - db
-      - minio
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
 
 volumes:
   db_data:

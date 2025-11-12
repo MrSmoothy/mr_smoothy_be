@@ -25,6 +25,7 @@ public class FruitService {
         }
         Fruit fruit = new Fruit();
         fruit.setName(request.getName());
+        fruit.setDescription(request.getDescription());
         fruit.setImageUrl(request.getImageUrl());
         fruit.setPricePerUnit(request.getPricePerUnit());
         fruit.setActive(request.getActive() != null ? request.getActive() : true);
@@ -35,6 +36,7 @@ public class FruitService {
     public FruitResponse update(Long id, FruitUpdateRequest request) {
         Fruit fruit = fruitRepository.findById(id).orElseThrow(() -> new RuntimeException("Fruit not found"));
         if (request.getName() != null) fruit.setName(request.getName());
+        if (request.getDescription() != null) fruit.setDescription(request.getDescription());
         if (request.getImageUrl() != null) fruit.setImageUrl(request.getImageUrl());
         if (request.getPricePerUnit() != null) fruit.setPricePerUnit(request.getPricePerUnit());
         if (request.getActive() != null) fruit.setActive(request.getActive());
@@ -62,6 +64,7 @@ public class FruitService {
         return FruitResponse.builder()
                 .id(f.getId())
                 .name(f.getName())
+                .description(f.getDescription())
                 .imageUrl(f.getImageUrl())
                 .pricePerUnit(f.getPricePerUnit())
                 .active(f.getActive())

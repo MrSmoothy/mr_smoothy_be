@@ -1,0 +1,147 @@
+[
+  {
+    "name": "กล้วย",
+    "description": "กล้วยสุกหวาน อุดมไปด้วยโพแทสเซียมและวิตามิน B6",
+    "pricePerUnit": 25.00,
+    "active": true
+  },
+  {
+    "name": "สตรอเบอรี่",
+    "description": "สตรอเบอรี่สด หวานอมเปรี้ยว อุดมด้วยวิตามิน C",
+    "pricePerUnit": 35.00,
+    "active": true
+  },
+  {
+    "name": "เลม่อน",
+    "description": "เลม่อนสด เปรี้ยวสดชื่น อุดมด้วยวิตามิน C",
+    "pricePerUnit": 20.00,
+    "active": true
+  },
+  {
+    "name": "บลูเบอรี่",
+    "description": "บลูเบอรี่สด หวาน อุดมด้วยสารต้านอนุมูลอิสระ",
+    "pricePerUnit": 40.00,
+    "active": true
+  },
+  {
+    "name": "บร็อคโคลี่",
+    "description": "บร็อคโคลี่สด กรอบ อุดมด้วยไฟเบอร์และวิตามิน K",
+    "pricePerUnit": 30.00,
+    "active": true
+  },
+  {
+    "name": "แอปเปิล",
+    "description": "แอปเปิลแดง กรอบ หวาน อุดมด้วยไฟเบอร์",
+    "pricePerUnit": 30.00,
+    "active": true
+  },
+  {
+    "name": "มะนาว",
+    "description": "มะนาวสด เปรี้ยว อุดมด้วยวิตามิน C",
+    "pricePerUnit": 15.00,
+    "active": true
+  },
+  {
+    "name": "ส้ม",
+    "description": "ส้มหวาน อุดมด้วยวิตามิน C",
+    "pricePerUnit": 28.00,
+    "active": true
+  },
+  {
+    "name": "องุ่น",
+    "description": "องุ่นดำ หวาน อุดมด้วยสารต้านอนุมูลอิสระ",
+    "pricePerUnit": 45.00,
+    "active": true
+  },
+  {
+    "name": "แคนตาลูป",
+    "description": "แคนตาลูปหวาน ฉ่ำน้ำ อุดมด้วยวิตามิน A",
+    "pricePerUnit": 50.00,
+    "active": true
+  },
+  {
+    "name": "แตงโม",
+    "description": "แตงโมหวาน ฉ่ำน้ำ อุดมด้วยไลโคปีน",
+    "pricePerUnit": 35.00,
+    "active": true
+  },
+  {
+    "name": "แครอท",
+    "description": "แครอทสด กรอบ อุดมด้วยเบต้าแคโรทีน",
+    "pricePerUnit": 25.00,
+    "active": true
+  },
+  {
+    "name": "ผักโขม",
+    "description": "ผักโขมสด อุดมด้วยธาตุเหล็กและวิตามิน K",
+    "pricePerUnit": 22.00,
+    "active": true
+  },
+  {
+    "name": "มะเขือเทศ",
+    "description": "มะเขือเทศสด อุดมด้วยไลโคปีน",
+    "pricePerUnit": 28.00,
+    "active": true
+  },
+  {
+    "name": "กีวี",
+    "description": "กีวีหวานอมเปรี้ยว อุดมด้วยวิตามิน C และไฟเบอร์",
+    "pricePerUnit": 38.00,
+    "active": true
+  },
+  {
+    "name": "แพชชั่นฟรุต",
+    "description": "แพชชั่นฟรุต เปรี้ยวหวาน อุดมด้วยวิตามิน A และ C",
+    "pricePerUnit": 42.00,
+    "active": true
+  },
+  {
+    "name": "มะม่วง",
+    "description": "มะม่วงสุก หวาน อุดมด้วยวิตามิน A",
+    "pricePerUnit": 32.00,
+    "active": true
+  },
+  {
+    "name": "สับปะรด",
+    "description": "สับปะรดหวาน ฉ่ำน้ำ อุดมด้วยวิตามิน C",
+    "pricePerUnit": 30.00,
+    "active": true
+  },
+  {
+    "name": "เซเลอรี่",
+    "description": "เซเลอรี่สด กรอบ อุดมด้วยไฟเบอร์และวิตามิน K",
+    "pricePerUnit": 20.00,
+    "active": true
+  },
+  {
+    "name": "อะโวคาโด",
+    "description": "อะโวคาโดสุก อุดมด้วยไขมันดีและไฟเบอร์",
+    "pricePerUnit": 55.00,
+    "active": true
+  },
+  {
+    "name": "ทับทิม",
+    "description": "ทับทิมหวาน อุดมด้วยสารต้านอนุมูลอิสระ",
+    "pricePerUnit": 48.00,
+    "active": true
+  },
+  {
+    "name": "พีช",
+    "description": "พีชหวาน ฉ่ำน้ำ อุดมด้วยวิตามิน C",
+    "pricePerUnit": 40.00,
+    "active": true
+  },
+  {
+    "name": "แพร์",
+    "description": "แพร์กรอบ หวาน อุดมด้วยไฟเบอร์",
+    "pricePerUnit": 35.00,
+    "active": true
+  },
+  {
+    "name": "เชอร์รี่",
+    "description": "เชอร์รี่หวาน อุดมด้วยสารต้านอนุมูลอิสระ",
+    "pricePerUnit": 50.00,
+    "active": true
+  }
+]
+
