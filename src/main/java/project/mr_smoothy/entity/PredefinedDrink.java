@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,10 @@ public class PredefinedDrink {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Column(name = "description", columnDefinition = "LONGTEXT", nullable = true, updatable = true, insertable = true)
     private String description;
+    
+    @Column(name = "image_url")
     private String imageUrl;
 
     @Column(nullable = false)

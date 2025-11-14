@@ -33,14 +33,57 @@ public class FruitService {
         return toResponse(saved);
     }
 
+    /**
+     * Updates an existing fruit entity with the provided request data.
+     * This method follows OOP principles by encapsulating the update logic
+     * and ensuring all fields are properly updated including description.
+     * 
+     * @param id The ID of the fruit to update
+     * @param request The update request containing new field values
+     * @return FruitResponse containing the updated fruit data
+     * @throws RuntimeException if fruit is not found
+     */
     public FruitResponse update(Long id, FruitUpdateRequest request) {
-        Fruit fruit = fruitRepository.findById(id).orElseThrow(() -> new RuntimeException("Fruit not found"));
-        if (request.getName() != null) fruit.setName(request.getName());
-        if (request.getDescription() != null) fruit.setDescription(request.getDescription());
-        if (request.getImageUrl() != null) fruit.setImageUrl(request.getImageUrl());
-        if (request.getPricePerUnit() != null) fruit.setPricePerUnit(request.getPricePerUnit());
-        if (request.getActive() != null) fruit.setActive(request.getActive());
-        return toResponse(fruitRepository.save(fruit));
+        Fruit fruit = fruitRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Fruit not found"));
+        
+        updateFruitFields(fruit, request);
+        
+        Fruit savedFruit = fruitRepository.save(fruit);
+        return toResponse(savedFruit);
+    }
+    
+    /**
+     * Updates the fruit entity fields based on the update request.
+     * This method encapsulates the field update logic following OOP principles.
+     * Description is always updated when provided in the request, including empty strings.
+     * 
+     * @param fruit The fruit entity to update
+     * @param request The update request containing new field values
+     */
+    private void updateFruitFields(Fruit fruit, FruitUpdateRequest request) {
+        if (request.getName() != null) {
+            fruit.setName(request.getName());
+        }
+        
+        // Description is always updated when provided in the request
+        // Frontend always sends description field when updating
+        // Empty string is a valid value and should be saved
+        if (request.getDescription() != null) {
+            fruit.setDescription(request.getDescription());
+        }
+        
+        if (request.getImageUrl() != null) {
+            fruit.setImageUrl(request.getImageUrl());
+        }
+        
+        if (request.getPricePerUnit() != null) {
+            fruit.setPricePerUnit(request.getPricePerUnit());
+        }
+        
+        if (request.getActive() != null) {
+            fruit.setActive(request.getActive());
+        }
     }
 
     public void delete(Long id) {

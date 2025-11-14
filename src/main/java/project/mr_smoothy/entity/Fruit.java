@@ -21,9 +21,10 @@ public class Fruit {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "LONGTEXT", nullable = true, updatable = true, insertable = true)
     private String description;
 
+    @Column(name = "image_url")
     private String imageUrl;
 
     @Column(nullable = false)

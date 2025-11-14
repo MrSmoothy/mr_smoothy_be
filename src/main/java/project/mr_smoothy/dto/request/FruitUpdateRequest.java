@@ -2,7 +2,6 @@ package project.mr_smoothy.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
-
 import java.math.BigDecimal;
 
 @Data
