@@ -4,6 +4,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import project.mr_smoothy.entity.Fruit;
 
 import java.math.BigDecimal;
 
@@ -20,6 +21,8 @@ public class FruitCreateRequest {
     private BigDecimal pricePerUnit;
     
     private String imageUrl;
+    
+    private Fruit.Category category = Fruit.Category.FRUIT;
     
     private Boolean active = true;
 }

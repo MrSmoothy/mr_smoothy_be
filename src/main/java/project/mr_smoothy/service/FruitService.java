@@ -28,6 +28,7 @@ public class FruitService {
         fruit.setDescription(request.getDescription());
         fruit.setImageUrl(request.getImageUrl());
         fruit.setPricePerUnit(request.getPricePerUnit());
+        fruit.setCategory(request.getCategory() != null ? request.getCategory() : Fruit.Category.FRUIT);
         fruit.setActive(request.getActive() != null ? request.getActive() : true);
         Fruit saved = fruitRepository.save(fruit);
         return toResponse(saved);
@@ -81,6 +82,10 @@ public class FruitService {
             fruit.setPricePerUnit(request.getPricePerUnit());
         }
         
+        if (request.getCategory() != null) {
+            fruit.setCategory(request.getCategory());
+        }
+        
         if (request.getActive() != null) {
             fruit.setActive(request.getActive());
         }
@@ -110,6 +115,7 @@ public class FruitService {
                 .description(f.getDescription())
                 .imageUrl(f.getImageUrl())
                 .pricePerUnit(f.getPricePerUnit())
+                .category(f.getCategory())
                 .active(f.getActive())
                 .build();
     }

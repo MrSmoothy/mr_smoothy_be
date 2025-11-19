@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import project.mr_smoothy.entity.Fruit;
 
 import java.math.BigDecimal;
 
@@ -17,6 +18,7 @@ public class FruitResponse {
     private String description;
     private BigDecimal pricePerUnit;
     private String imageUrl;
+    private Fruit.Category category;
     private Boolean active;
 }
 

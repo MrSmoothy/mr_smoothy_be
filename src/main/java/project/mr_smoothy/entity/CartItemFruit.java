@@ -21,7 +21,7 @@ public class CartItemFruit {
     private CartItem cartItem;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "fruit_id")
+    @JoinColumn(name = "ingredient_id")
     private Fruit fruit;
 
     @Column(nullable = false)
