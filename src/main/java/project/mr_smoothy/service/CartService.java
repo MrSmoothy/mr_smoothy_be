@@ -99,6 +99,7 @@ public class CartService {
                 .cupSizeName(ci.getCupSize().getName())
                 .predefinedDrinkId(ci.getPredefinedDrink() != null ? ci.getPredefinedDrink().getId() : null)
                 .predefinedDrinkName(ci.getPredefinedDrink() != null ? ci.getPredefinedDrink().getName() : null)
+                .predefinedDrinkImageUrl(ci.getPredefinedDrink() != null ? ci.getPredefinedDrink().getImageUrl() : null)
                 .fruits(ci.getFruits().stream().map(f -> CartItemResponse.FruitEntry.builder()
                         .fruitId(f.getFruit().getId())
                         .fruitName(f.getFruit().getName())

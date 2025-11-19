@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.mr_smoothy.dto.request.UserCreateRequest;
+import project.mr_smoothy.dto.request.UserUpdateRequest;
 import project.mr_smoothy.dto.response.ApiResponse;
 import project.mr_smoothy.dto.response.UserResponse;
 import project.mr_smoothy.service.UserService;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
@@ -49,6 +51,27 @@ public class UserController {
         log.info("GET /api/users/username/{} - Fetching user by username", username);
         UserResponse user = userService.getUserByUsername(username);
         return ResponseEntity.ok(ApiResponse.success(user));
+    }
+
+    /**
+     * Get current authenticated user's profile
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
+        log.info("GET /api/users/me - Fetching current user profile");
+        UserResponse user = userService.getCurrentUser();
+        return ResponseEntity.ok(ApiResponse.success(user));
+    }
+
+    /**
+     * Update current authenticated user's profile
+     */
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> updateCurrentUser(
+            @Valid @RequestBody UserUpdateRequest request) {
+        log.info("PUT /api/users/me - Updating current user profile");
+        UserResponse user = userService.updateCurrentUser(request);
+        return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", user));
     }
 }
 

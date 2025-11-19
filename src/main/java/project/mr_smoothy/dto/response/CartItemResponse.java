@@ -20,6 +20,7 @@ public class CartItemResponse {
     private Integer quantity;
     private Long predefinedDrinkId;
     private String predefinedDrinkName;
+    private String predefinedDrinkImageUrl; // Image URL for predefined drinks
     private List<FruitEntry> fruits;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;

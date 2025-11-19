@@ -104,6 +104,61 @@ public class OrderService {
         return convertToResponse(order);
     }
 
+    /**
+     * Gets all orders (admin only).
+     * This method follows OOP principles by encapsulating the order retrieval logic.
+     * 
+     * @return List of all orders
+     */
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getAllOrders() {
+        log.info("Fetching all orders (admin)");
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets order by ID without user check (admin only).
+     * This method follows OOP principles by encapsulating the order retrieval logic.
+     * 
+     * @param orderId The order ID
+     * @return OrderResponse
+     */
+    @Transactional(readOnly = true)
+    public OrderResponse getOrderByIdForAdmin(Long orderId) {
+        log.info("Fetching order {} for admin", orderId);
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return convertToResponse(order);
+    }
+
+    /**
+     * Updates order status (admin only).
+     * This method follows OOP principles by encapsulating the status update logic.
+     * 
+     * @param orderId The order ID
+     * @param statusString The new status
+     * @return Updated OrderResponse
+     */
+    @Transactional
+    public OrderResponse updateOrderStatus(Long orderId, String statusString) {
+        log.info("Updating order {} status to {}", orderId, statusString);
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        
+        try {
+            Order.OrderStatus newStatus = Order.OrderStatus.valueOf(statusString.toUpperCase());
+            order.setStatus(newStatus);
+            Order savedOrder = orderRepository.save(order);
+            log.info("Order {} status updated to {}", orderId, newStatus);
+            return convertToResponse(savedOrder);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid order status: " + statusString);
+        }
+    }
+
     private OrderResponse convertToResponse(Order order) {
         List<OrderItemResponse> itemResponses = order.getItems().stream()
                 .map(this::convertItemToResponse)
