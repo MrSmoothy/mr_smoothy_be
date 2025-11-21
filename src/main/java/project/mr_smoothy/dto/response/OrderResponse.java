@@ -23,6 +23,9 @@ public class OrderResponse {
     private String notes;
     private String customerName; // สำหรับ guest orders
     private String customerEmail; // สำหรับ guest orders
+    private String username; // สำหรับ logged-in users
+    private String userEmail; // สำหรับ logged-in users
+    private String userFullName; // สำหรับ logged-in users
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

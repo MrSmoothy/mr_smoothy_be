@@ -38,7 +38,8 @@ public class CartItem {
     @JoinColumn(name = "cup_size_id")
     private CupSize cupSize;
 
-    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @org.hibernate.annotations.BatchSize(size = 20)
     private List<CartItemFruit> fruits = new ArrayList<>(); // ใช้เมื่อ type = CUSTOM
 
     @Column(nullable = false)

@@ -47,6 +47,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3600);
         
+        registry.addMapping("/api/users/**")
+                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
+        
         registry.addMapping("/api/admin/**")
                 .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
@@ -64,7 +71,7 @@ public class WebConfig implements WebMvcConfigurer {
         
         // User endpoints - require any authenticated user
         registry.addInterceptor(userAuthInterceptor)
-                .addPathPatterns("/api/cart/**", "/api/orders/**")
+                .addPathPatterns("/api/cart/**", "/api/orders/**", "/api/users/**")
                 .excludePathPatterns("/api/auth/**", "/api/public/**");
     }
 }

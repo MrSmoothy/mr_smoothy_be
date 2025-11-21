@@ -125,6 +125,15 @@ public class UserService {
             user.setEmail(email);
         }
         
+        if (request.getPhoneNumber() != null) {
+            String phoneNumber = request.getPhoneNumber().trim();
+            user.setPhoneNumber(phoneNumber.isEmpty() ? null : phoneNumber);
+        }
+        
+        if (request.getDateOfBirth() != null) {
+            user.setDateOfBirth(request.getDateOfBirth());
+        }
+        
         if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword().trim()));
         }
@@ -136,6 +145,8 @@ public class UserService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
+                .dateOfBirth(user.getDateOfBirth())
                 .role(user.getRole())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

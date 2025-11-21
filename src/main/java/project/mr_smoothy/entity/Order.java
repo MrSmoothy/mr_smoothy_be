@@ -40,7 +40,8 @@ public class Order {
     @Column(name = "customer_email")
     private String customerEmail; // สำหรับ guest orders
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @org.hibernate.annotations.BatchSize(size = 20)
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(nullable = false)

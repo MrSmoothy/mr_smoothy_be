@@ -38,7 +38,8 @@ public class OrderItem {
     @JoinColumn(name = "cup_size_id")
     private CupSize cupSize;
 
-    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @org.hibernate.annotations.BatchSize(size = 20)
     private List<OrderItemFruit> fruits = new ArrayList<>();
 
     @Column(nullable = false)

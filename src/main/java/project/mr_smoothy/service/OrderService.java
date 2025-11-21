@@ -88,6 +88,7 @@ public class OrderService {
         return convertToResponse(savedOrder);
     }
 
+    @Transactional(readOnly = true)
     public List<OrderResponse> getMyOrders() {
         User currentUser = authUtil.getCurrentUser();
         List<Order> orders = orderRepository.findMyOrders(currentUser.getId());
@@ -96,9 +97,10 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public OrderResponse getOrderById(Long orderId) {
         User currentUser = authUtil.getCurrentUser();
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         
         // Check if order belongs to user (or is a guest order)
@@ -196,7 +198,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
         log.info("Fetching all orders (admin)");
-        List<Order> orders = orderRepository.findAll();
+        List<Order> orders = orderRepository.findAllWithDetails();
         return orders.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
@@ -212,7 +214,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getOrderByIdForAdmin(Long orderId) {
         log.info("Fetching order {} for admin", orderId);
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         return convertToResponse(order);
     }
@@ -227,7 +229,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> getGuestOrdersByPhoneNumber(String phoneNumber) {
         log.info("Fetching guest orders for phone number: {}", phoneNumber);
-        List<Order> orders = orderRepository.findByUserIsNullAndPhoneNumberOrderByCreatedAtDesc(phoneNumber);
+        List<Order> orders = orderRepository.findByUserIsNullAndPhoneNumberOrderByCreatedAtDescWithDetails(phoneNumber);
         return orders.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
@@ -243,7 +245,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getGuestOrderById(Long orderId) {
         log.info("Fetching guest order: {}", orderId);
-        Order order = orderRepository.findByIdAndUserIsNull(orderId)
+        Order order = orderRepository.findByIdAndUserIsNullWithDetails(orderId)
                 .orElseThrow(() -> new RuntimeException("Guest order not found"));
         return convertToResponse(order);
     }
@@ -259,7 +261,7 @@ public class OrderService {
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, String statusString) {
         log.info("Updating order {} status to {}", orderId, statusString);
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         
         try {
@@ -267,7 +269,9 @@ public class OrderService {
             order.setStatus(newStatus);
             Order savedOrder = orderRepository.save(order);
             log.info("Order {} status updated to {}", orderId, newStatus);
-            return convertToResponse(savedOrder);
+            // Reload with details to ensure all relationships are loaded for response
+            return convertToResponse(orderRepository.findByIdWithDetails(savedOrder.getId())
+                    .orElse(savedOrder));
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid order status: " + statusString);
         }
@@ -278,7 +282,7 @@ public class OrderService {
                 .map(this::convertItemToResponse)
                 .collect(Collectors.toList());
 
-        return OrderResponse.builder()
+        OrderResponse.OrderResponseBuilder builder = OrderResponse.builder()
                 .orderId(order.getId())
                 .items(itemResponses)
                 .totalPrice(order.getTotalPrice())
@@ -289,8 +293,16 @@ public class OrderService {
                 .customerName(order.getCustomerName())
                 .customerEmail(order.getCustomerEmail())
                 .createdAt(order.getCreatedAt())
-                .updatedAt(order.getUpdatedAt())
-                .build();
+                .updatedAt(order.getUpdatedAt());
+
+        // Add user information if order belongs to a logged-in user
+        if (order.getUser() != null) {
+            builder.username(order.getUser().getUsername())
+                   .userEmail(order.getUser().getEmail())
+                   .userFullName(order.getUser().getFullName());
+        }
+
+        return builder.build();
     }
 
     private OrderItemResponse convertItemToResponse(OrderItem item) {

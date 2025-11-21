@@ -25,6 +25,7 @@ public class CartService {
     private final PredefinedDrinkRepository predefinedDrinkRepository;
     private final AuthUtil authUtil;
 
+    @Transactional(readOnly = true)
     public CartResponse getMyCart() {
         Cart cart = getOrCreateActiveCart(getCurrentUser());
         return toResponse(cart);
@@ -77,7 +78,7 @@ public class CartService {
     }
 
     private Cart getOrCreateActiveCart(User user) {
-        return cartRepository.findByUserAndActiveTrue(user)
+        return cartRepository.findByUserAndActiveTrueWithItems(user)
                 .orElseGet(() -> {
                     Cart c = new Cart();
                     c.setUser(user);

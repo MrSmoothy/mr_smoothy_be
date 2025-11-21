@@ -218,12 +218,19 @@ public class PredefinedDrinkService {
         drinkRepository.delete(drink);
     }
 
+    @Transactional(readOnly = true)
     public PredefinedDrinkResponse get(Long id) {
-        return drinkRepository.findById(id).map(this::toResponse).orElseThrow(() -> new RuntimeException("Drink not found"));
+        return drinkRepository.findByIdWithIngredients(id)
+                .map(this::toResponse)
+                .orElseThrow(() -> new RuntimeException("Drink not found"));
     }
 
+    @Transactional(readOnly = true)
     public List<PredefinedDrinkResponse> list() {
-        return drinkRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+        return drinkRepository.findAllWithIngredients().stream()
+                .filter(d -> d.getActive())
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     private PredefinedDrinkResponse toResponse(PredefinedDrink d) {

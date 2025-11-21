@@ -18,9 +18,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
-        log.error("Runtime exception occurred: {}", ex.getMessage());
+        log.error("Runtime exception occurred: {}", ex.getMessage(), ex);
         
-        // ซ่อน technical error messages จาก user
+        // ซ่อน technical error messages จาก user แต่ log เต็มรูปแบบ
         String userMessage = ex.getMessage();
         if (userMessage != null) {
             // กรอง technical errors
@@ -29,6 +29,12 @@ public class GlobalExceptionHandler {
                 userMessage.contains("CORS") ||
                 userMessage.contains("Access-Control")) {
                 userMessage = "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง";
+            } else if (userMessage.contains("JSON") || 
+                       userMessage.contains("parse") ||
+                       userMessage.contains("deserialize") ||
+                       userMessage.contains("Unrecognized field")) {
+                log.error("JSON parsing error - check request format");
+                userMessage = "รูปแบบข้อมูลไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
             }
         } else {
             userMessage = "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง";

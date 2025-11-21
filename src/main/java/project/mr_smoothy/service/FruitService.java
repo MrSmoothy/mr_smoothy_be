@@ -105,10 +105,12 @@ public class FruitService {
         return fruitRepository.findById(id).map(this::toResponse).orElseThrow(() -> new RuntimeException("Fruit not found"));
     }
 
+    @Transactional(readOnly = true)
     public List<FruitResponse> list() {
         return fruitRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<FruitResponse> listActive() {
         return fruitRepository.findByActiveTrue().stream().map(this::toResponse).collect(Collectors.toList());
     }

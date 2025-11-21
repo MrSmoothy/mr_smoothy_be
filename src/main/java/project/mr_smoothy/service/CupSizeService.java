@@ -49,10 +49,12 @@ public class CupSizeService {
         return cupSizeRepository.findById(id).map(this::toResponse).orElseThrow(() -> new RuntimeException("Cup size not found"));
     }
 
+    @Transactional(readOnly = true)
     public List<CupSizeResponse> list() {
         return cupSizeRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<CupSizeResponse> listActive() {
         return cupSizeRepository.findByActiveTrue().stream().map(this::toResponse).collect(Collectors.toList());
     }
