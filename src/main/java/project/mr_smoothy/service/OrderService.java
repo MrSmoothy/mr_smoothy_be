@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.mr_smoothy.dto.request.GuestOrderCreateRequest;
 import project.mr_smoothy.dto.request.OrderCreateRequest;
 import project.mr_smoothy.dto.response.CartResponse;
 import project.mr_smoothy.dto.response.OrderItemResponse;
@@ -25,6 +26,9 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final CartService cartService;
     private final AuthUtil authUtil;
+    private final PredefinedDrinkRepository predefinedDrinkRepository;
+    private final FruitRepository fruitRepository;
+    private final CupSizeRepository cupSizeRepository;
 
     @Transactional
     public OrderResponse createOrder(OrderCreateRequest request) {
@@ -97,11 +101,90 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         
-        if (!order.getUser().getId().equals(currentUser.getId())) {
+        // Check if order belongs to user (or is a guest order)
+        if (order.getUser() != null && !order.getUser().getId().equals(currentUser.getId())) {
             throw new RuntimeException("You don't have permission to view this order");
         }
 
         return convertToResponse(order);
+    }
+
+    /**
+     * Creates an order for guest users (without authentication).
+     * This method follows OOP principles by encapsulating the guest order creation logic.
+     * 
+     * @param request The guest order creation request
+     * @return OrderResponse containing the created order
+     */
+    @Transactional
+    public OrderResponse createGuestOrder(GuestOrderCreateRequest request) {
+        log.info("Creating guest order for customer: {}", request.getCustomerName());
+        
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new RuntimeException("Cart is empty");
+        }
+
+        Order order = new Order();
+        order.setUser(null); // Guest order has no user
+        order.setCustomerName(request.getCustomerName());
+        order.setCustomerEmail(request.getCustomerEmail());
+        order.setPickupTime(request.getPickupTime());
+        order.setPhoneNumber(request.getPhoneNumber());
+        order.setNotes(request.getNotes());
+        order.setStatus(Order.OrderStatus.PENDING);
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        for (GuestOrderCreateRequest.GuestOrderItemRequest itemRequest : request.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            
+            // Set type
+            if ("PREDEFINED".equals(itemRequest.getType())) {
+                orderItem.setType(OrderItem.ItemType.PREDEFINED);
+            } else {
+                orderItem.setType(OrderItem.ItemType.CUSTOM);
+            }
+            
+            // Set cup size
+            CupSize cupSize = cupSizeRepository.findById(itemRequest.getCupSizeId())
+                    .orElseThrow(() -> new RuntimeException("Cup size not found: " + itemRequest.getCupSizeId()));
+            orderItem.setCupSize(cupSize);
+            
+            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setUnitPrice(itemRequest.getUnitPrice());
+            orderItem.setTotalPrice(itemRequest.getTotalPrice());
+
+            // Set predefined drink if applicable
+            if (orderItem.getType() == OrderItem.ItemType.PREDEFINED && itemRequest.getPredefinedDrinkId() != null) {
+                PredefinedDrink predefinedDrink = predefinedDrinkRepository.findById(itemRequest.getPredefinedDrinkId())
+                        .orElseThrow(() -> new RuntimeException("Predefined drink not found: " + itemRequest.getPredefinedDrinkId()));
+                orderItem.setPredefinedDrink(predefinedDrink);
+            }
+
+            // Set fruits
+            if (itemRequest.getFruits() != null) {
+                for (GuestOrderCreateRequest.GuestOrderItemFruitRequest fruitRequest : itemRequest.getFruits()) {
+                    Fruit fruit = fruitRepository.findById(fruitRequest.getFruitId())
+                            .orElseThrow(() -> new RuntimeException("Fruit not found: " + fruitRequest.getFruitId()));
+                    
+                    OrderItemFruit orderItemFruit = new OrderItemFruit();
+                    orderItemFruit.setOrderItem(orderItem);
+                    orderItemFruit.setFruit(fruit);
+                    orderItemFruit.setQuantity(fruitRequest.getQuantity());
+                    orderItem.getFruits().add(orderItemFruit);
+                }
+            }
+
+            order.getItems().add(orderItem);
+            totalPrice = totalPrice.add(orderItem.getTotalPrice());
+        }
+
+        order.setTotalPrice(totalPrice);
+        Order savedOrder = orderRepository.save(order);
+
+        log.info("Guest order created: {} for customer: {}", savedOrder.getId(), request.getCustomerName());
+        return convertToResponse(savedOrder);
     }
 
     /**
@@ -131,6 +214,37 @@ public class OrderService {
         log.info("Fetching order {} for admin", orderId);
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+        return convertToResponse(order);
+    }
+
+    /**
+     * Gets guest orders by phone number (public API).
+     * This method follows OOP principles by encapsulating the guest order retrieval logic.
+     * 
+     * @param phoneNumber The phone number
+     * @return List of guest orders
+     */
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getGuestOrdersByPhoneNumber(String phoneNumber) {
+        log.info("Fetching guest orders for phone number: {}", phoneNumber);
+        List<Order> orders = orderRepository.findByUserIsNullAndPhoneNumberOrderByCreatedAtDesc(phoneNumber);
+        return orders.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets guest order by ID (public API).
+     * This method follows OOP principles by encapsulating the guest order retrieval logic.
+     * 
+     * @param orderId The order ID
+     * @return OrderResponse
+     */
+    @Transactional(readOnly = true)
+    public OrderResponse getGuestOrderById(Long orderId) {
+        log.info("Fetching guest order: {}", orderId);
+        Order order = orderRepository.findByIdAndUserIsNull(orderId)
+                .orElseThrow(() -> new RuntimeException("Guest order not found"));
         return convertToResponse(order);
     }
 
@@ -172,6 +286,8 @@ public class OrderService {
                 .pickupTime(order.getPickupTime())
                 .phoneNumber(order.getPhoneNumber())
                 .notes(order.getNotes())
+                .customerName(order.getCustomerName())
+                .customerEmail(order.getCustomerEmail())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();

@@ -21,6 +21,8 @@ public class OrderResponse {
     private LocalDateTime pickupTime;
     private String phoneNumber;
     private String notes;
+    private String customerName; // สำหรับ guest orders
+    private String customerEmail; // สำหรับ guest orders
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

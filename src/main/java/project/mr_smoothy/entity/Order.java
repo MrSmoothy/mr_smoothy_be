@@ -30,9 +30,15 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user; // null สำหรับ guest orders
+
+    @Column(name = "customer_name")
+    private String customerName; // สำหรับ guest orders
+
+    @Column(name = "customer_email")
+    private String customerEmail; // สำหรับ guest orders
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();

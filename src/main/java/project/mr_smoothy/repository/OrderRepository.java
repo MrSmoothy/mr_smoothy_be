@@ -16,5 +16,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findMyOrders(@Param("userId") Long userId);
     
     List<Order> findByUser(User user);
+    
+    // สำหรับ guest orders
+    List<Order> findByUserIsNullAndPhoneNumberOrderByCreatedAtDesc(String phoneNumber);
+    
+    java.util.Optional<Order> findByIdAndUserIsNull(Long orderId);
 }
 
