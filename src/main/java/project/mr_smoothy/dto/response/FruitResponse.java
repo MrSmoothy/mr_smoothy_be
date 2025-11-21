@@ -20,5 +20,6 @@ public class FruitResponse {
     private String imageUrl;
     private Fruit.Category category;
     private Boolean active;
+    private Boolean seasonal;
 }
 

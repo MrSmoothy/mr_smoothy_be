@@ -19,5 +19,7 @@ public class FruitUpdateRequest {
     private Fruit.Category category;
     
     private Boolean active;
+    
+    private Boolean seasonal;
 }
 

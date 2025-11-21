@@ -30,6 +30,7 @@ public class FruitService {
         fruit.setPricePerUnit(request.getPricePerUnit());
         fruit.setCategory(request.getCategory() != null ? request.getCategory() : Fruit.Category.FRUIT);
         fruit.setActive(request.getActive() != null ? request.getActive() : true);
+        fruit.setSeasonal(request.getSeasonal() != null ? request.getSeasonal() : false);
         Fruit saved = fruitRepository.save(fruit);
         return toResponse(saved);
     }
@@ -89,6 +90,10 @@ public class FruitService {
         if (request.getActive() != null) {
             fruit.setActive(request.getActive());
         }
+        
+        if (request.getSeasonal() != null) {
+            fruit.setSeasonal(request.getSeasonal());
+        }
     }
 
     public void delete(Long id) {
@@ -108,6 +113,34 @@ public class FruitService {
         return fruitRepository.findByActiveTrue().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<FruitResponse> listSeasonal() {
+        return fruitRepository.findByActiveTrueAndSeasonalTrue().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Bulk update seasonal status for multiple ingredients.
+     * This method follows OOP principles by encapsulating the bulk update logic.
+     * 
+     * @param ingredientIds List of ingredient IDs to update
+     * @param seasonal The seasonal status to set
+     * @return List of updated FruitResponse
+     */
+    public List<FruitResponse> bulkUpdateSeasonal(List<Long> ingredientIds, Boolean seasonal) {
+        List<Fruit> ingredients = fruitRepository.findAllById(ingredientIds);
+        
+        for (Fruit ingredient : ingredients) {
+            ingredient.setSeasonal(seasonal);
+        }
+        
+        List<Fruit> savedIngredients = fruitRepository.saveAll(ingredients);
+        return savedIngredients.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     private FruitResponse toResponse(Fruit f) {
         return FruitResponse.builder()
                 .id(f.getId())
@@ -117,6 +150,7 @@ public class FruitService {
                 .pricePerUnit(f.getPricePerUnit())
                 .category(f.getCategory())
                 .active(f.getActive())
+                .seasonal(f.getSeasonal())
                 .build();
     }
 }

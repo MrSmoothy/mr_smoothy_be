@@ -44,6 +44,16 @@ public class AdminFruitController {
     public ResponseEntity<ApiResponse<List<FruitResponse>>> list() {
         return ResponseEntity.ok(ApiResponse.success("OK", fruitService.list()));
     }
+
+    @PutMapping("/bulk-seasonal")
+    public ResponseEntity<ApiResponse<List<FruitResponse>>> bulkUpdateSeasonal(
+            @RequestBody project.mr_smoothy.dto.request.BulkSeasonalUpdateRequest request) {
+        List<FruitResponse> updated = fruitService.bulkUpdateSeasonal(
+                request.getIngredientIds(), 
+                request.getSeasonal()
+        );
+        return ResponseEntity.ok(ApiResponse.success("Updated", updated));
+    }
 }
 
 

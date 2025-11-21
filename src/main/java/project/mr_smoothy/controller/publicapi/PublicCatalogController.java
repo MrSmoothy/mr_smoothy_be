@@ -38,6 +38,11 @@ public class PublicCatalogController {
     public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> listDrinks() {
         return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.list()));
     }
+
+    @GetMapping("/seasonal-ingredients")
+    public ResponseEntity<ApiResponse<List<FruitResponse>>> listSeasonalIngredients() {
+        return ResponseEntity.ok(ApiResponse.success("OK", fruitService.listSeasonal()));
+    }
 }
 
 

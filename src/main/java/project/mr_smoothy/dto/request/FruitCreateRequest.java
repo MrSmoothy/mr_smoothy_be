@@ -25,5 +25,7 @@ public class FruitCreateRequest {
     private Fruit.Category category = Fruit.Category.FRUIT;
     
     private Boolean active = true;
+    
+    private Boolean seasonal = false;
 }
 

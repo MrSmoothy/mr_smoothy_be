@@ -42,6 +42,9 @@ public class Fruit {
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    @Column(nullable = false)
+    private Boolean seasonal = false; // วัตถุดิบตามฤดูกาล
 }
 
 
