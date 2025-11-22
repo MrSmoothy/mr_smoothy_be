@@ -61,28 +61,31 @@ services:
     container_name: mr_smoothy_api
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT:-8080}:8080"
+    env_file:
+      - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mr_smoothy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: smoothy
-      SPRING_DATASOURCE_PASSWORD: smoothypass
-
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      SPRING_JPA_SHOW_SQL: "true"
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+      # Database - ใช้ค่าจาก .env หรือค่า default
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:mysql://db:3306/mr_smoothy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-smoothy}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-smoothypass}
+      # JPA
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-validate}
+      SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL:-true}
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: ${SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT:-org.hibernate.dialect.MySQLDialect}
+      # Server
       SERVER_PORT: 8080
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       # JWT
-      JWT_SECRET: 9e62b0c8a4f1d2e3b5c6a7981f2d3c4b5a6e7f8190abcdeffedcba0987654321
-      JWT_EXPIRATION: 86400000
-      # MinIO
-      # Internal endpoint for backend to connect to MinIO
-      MINIO_ENDPOINT: http://minio:9000
-      # Public endpoint for frontend to access images (must be accessible from browser)
-      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin123
-      MINIO_BUCKET_NAME: mr-smoothy-images
+      JWT_SECRET: ${JWT_SECRET:-9e62b0c8a4f1d2e3b5c6a7981f2d3c4b5a6e7f8190abcdeffedcba0987654321}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      # MinIO - Internal endpoint สำหรับ backend เชื่อมต่อ MinIO (ใน Docker ใช้ minio:9000)
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://minio:9000}
+      # MinIO - Public endpoint สำหรับ frontend เข้าถึงรูปภาพ (ต้องเข้าถึงได้จาก browser)
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://localhost:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin123}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-mr-smoothy-images}
     depends_on:
       db:
         condition: service_healthy
