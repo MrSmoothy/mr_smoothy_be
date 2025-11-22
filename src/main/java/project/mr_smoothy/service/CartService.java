@@ -2,6 +2,7 @@ package project.mr_smoothy.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import project.mr_smoothy.dto.request.CartAddItemRequest;
 import project.mr_smoothy.dto.response.CartItemResponse;
@@ -25,7 +26,6 @@ public class CartService {
     private final PredefinedDrinkRepository predefinedDrinkRepository;
     private final AuthUtil authUtil;
 
-    @Transactional(readOnly = true)
     public CartResponse getMyCart() {
         Cart cart = getOrCreateActiveCart(getCurrentUser());
         return toResponse(cart);
@@ -77,6 +77,7 @@ public class CartService {
         return toResponse(cart);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private Cart getOrCreateActiveCart(User user) {
         return cartRepository.findByUserAndActiveTrueWithItems(user)
                 .orElseGet(() -> {
