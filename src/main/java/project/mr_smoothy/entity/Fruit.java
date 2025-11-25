@@ -45,6 +45,39 @@ public class Fruit {
 
     @Column(nullable = false)
     private Boolean seasonal = false; // วัตถุดิบตามฤดูกาล
+
+    // Nutrition Data (from USDA + OpenAI)
+    @Column(name = "calorie", precision = 10, scale = 2)
+    private BigDecimal calorie; // calories per 100g
+
+    @Column(name = "protein", precision = 10, scale = 2)
+    private BigDecimal protein; // grams per 100g
+
+    @Column(name = "fiber", precision = 10, scale = 2)
+    private BigDecimal fiber; // grams per 100g
+
+    @Column(name = "vitamins", columnDefinition = "JSON")
+    private String vitamins; // JSON object: {"vitaminC": 50, "vitaminA": 100, ...}
+
+    @Column(name = "minerals", columnDefinition = "JSON")
+    private String minerals; // JSON object: {"calcium": 20, "iron": 1.5, ...}
+
+    // Flavor & Pairing Data (from OpenAI)
+    @Column(name = "flavor_profile", length = 255)
+    private String flavorProfile; // e.g., "sweet, tropical"
+
+    @Column(name = "taste_notes", columnDefinition = "TEXT")
+    private String tasteNotes; // detailed taste description
+
+    @Column(name = "best_mix_pairing", columnDefinition = "JSON")
+    private String bestMixPairing; // JSON array: ["banana", "strawberry", ...]
+
+    @Column(name = "avoid_pairing", columnDefinition = "JSON")
+    private String avoidPairing; // JSON array: ["dairy", "citrus", ...]
+
+    // Raw USDA Data (for reference)
+    @Column(name = "raw_usda_data", columnDefinition = "LONGTEXT")
+    private String rawUsdaData; // Complete USDA API response as JSON string
 }
 
 

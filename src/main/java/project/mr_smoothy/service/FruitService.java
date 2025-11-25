@@ -1,6 +1,11 @@
 package project.mr_smoothy.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.mr_smoothy.dto.request.FruitCreateRequest;
@@ -9,15 +14,24 @@ import project.mr_smoothy.dto.response.FruitResponse;
 import project.mr_smoothy.entity.Fruit;
 import project.mr_smoothy.repository.FruitRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class FruitService {
 
     private final FruitRepository fruitRepository;
+    private final USDAService usdaService;
+    private final OpenAIService openAIService;
+    private final ObjectMapper objectMapper;
+    
+    @Value("${usda.api.key:}")
+    private String usdaApiKey;
 
     public FruitResponse create(FruitCreateRequest request) {
         if (fruitRepository.existsByNameIgnoreCase(request.getName())) {
@@ -31,8 +45,111 @@ public class FruitService {
         fruit.setCategory(request.getCategory() != null ? request.getCategory() : Fruit.Category.FRUIT);
         fruit.setActive(request.getActive() != null ? request.getActive() : true);
         fruit.setSeasonal(request.getSeasonal() != null ? request.getSeasonal() : false);
+        
+        // Try to fetch nutrition data automatically (optional - won't fail if it doesn't work)
+        // Only fetch if nutrition data is missing to save API tokens
+        boolean hasNutritionData = fruit.getCalorie() != null || 
+                                   fruit.getProtein() != null || 
+                                   fruit.getFiber() != null;
+        
+        if (!hasNutritionData) {
+            try {
+                // Check if USDA API key is configured before attempting to fetch
+                if (usdaApiKey == null || usdaApiKey.isEmpty() || 
+                    usdaApiKey.equals("your_usda_api_key_here") || 
+                    usdaApiKey.trim().isEmpty()) {
+                    log.info("USDA API key not configured. Skipping nutrition data fetch for: {}. " +
+                            "To enable automatic nutrition data fetching, set USDA_API_KEY in docker-compose.yaml", 
+                            fruit.getName());
+                } else {
+                    fetchAndSetNutritionData(fruit);
+                    log.info("Successfully fetched nutrition data for: {}", fruit.getName());
+                }
+            } catch (Exception e) {
+                log.warn("Could not fetch nutrition data for {}: {}. Continuing without nutrition data.", 
+                        fruit.getName(), e.getMessage());
+                // Continue without nutrition data - not a critical error
+            }
+        } else {
+            log.info("Nutrition data already exists for: {}. Skipping API call to save tokens.", fruit.getName());
+        }
+        
         Fruit saved = fruitRepository.save(fruit);
         return toResponse(saved);
+    }
+    
+    /**
+     * Fetch and set nutrition data for a fruit (internal helper method)
+     * This method is called automatically when creating a fruit
+     */
+    private void fetchAndSetNutritionData(Fruit fruit) {
+        try {
+            // Step 1: Search USDA API
+            JsonNode searchResponse = usdaService.searchFood(fruit.getName());
+            Integer fdcId = usdaService.extractFdcId(searchResponse);
+            
+            if (fdcId == null) {
+                log.warn("Could not find USDA data for: {}", fruit.getName());
+                return;
+            }
+
+            // Step 2: Get detailed USDA data
+            JsonNode usdaDetails = usdaService.getFoodDetails(fdcId);
+
+            // Step 3: Process with OpenAI
+            Map<String, Object> processedData = openAIService.processIngredientData(
+                    fruit.getName(), 
+                    usdaDetails
+            );
+
+            // Step 4: Set nutrition data
+            setNutritionDataFromProcessed(fruit, processedData, usdaDetails);
+            
+        } catch (Exception e) {
+            log.error("Error fetching nutrition data for {}: {}", fruit.getName(), e.getMessage(), e);
+            throw e; // Re-throw to be caught by caller
+        }
+    }
+    
+    /**
+     * Set nutrition data from processed OpenAI response
+     */
+    private void setNutritionDataFromProcessed(Fruit fruit, Map<String, Object> processedData, JsonNode usdaDetails) {
+        if (processedData.containsKey("calorie")) {
+            fruit.setCalorie(new BigDecimal(processedData.get("calorie").toString()));
+        }
+        if (processedData.containsKey("protein")) {
+            fruit.setProtein(new BigDecimal(processedData.get("protein").toString()));
+        }
+        if (processedData.containsKey("fiber")) {
+            fruit.setFiber(new BigDecimal(processedData.get("fiber").toString()));
+        }
+        try {
+            if (processedData.containsKey("vitamins")) {
+                fruit.setVitamins(objectMapper.writeValueAsString(processedData.get("vitamins")));
+            }
+            if (processedData.containsKey("minerals")) {
+                fruit.setMinerals(objectMapper.writeValueAsString(processedData.get("minerals")));
+            }
+            if (processedData.containsKey("flavor_profile")) {
+                fruit.setFlavorProfile(processedData.get("flavor_profile").toString());
+            }
+            if (processedData.containsKey("taste_notes")) {
+                fruit.setTasteNotes(processedData.get("taste_notes").toString());
+            }
+            if (processedData.containsKey("best_mix_pairing")) {
+                fruit.setBestMixPairing(objectMapper.writeValueAsString(processedData.get("best_mix_pairing")));
+            }
+            if (processedData.containsKey("avoid_pairing")) {
+                fruit.setAvoidPairing(objectMapper.writeValueAsString(processedData.get("avoid_pairing")));
+            }
+        } catch (JsonProcessingException e) {
+            log.error("Error converting processed data to JSON: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to process ingredient data: " + e.getMessage(), e);
+        }
+
+        // Store raw USDA data
+        fruit.setRawUsdaData(usdaDetails.toString());
     }
 
     /**
@@ -153,6 +270,15 @@ public class FruitService {
                 .category(f.getCategory())
                 .active(f.getActive())
                 .seasonal(f.getSeasonal())
+                .calorie(f.getCalorie())
+                .protein(f.getProtein())
+                .fiber(f.getFiber())
+                .vitamins(f.getVitamins())
+                .minerals(f.getMinerals())
+                .flavorProfile(f.getFlavorProfile())
+                .tasteNotes(f.getTasteNotes())
+                .bestMixPairing(f.getBestMixPairing())
+                .avoidPairing(f.getAvoidPairing())
                 .build();
     }
 }

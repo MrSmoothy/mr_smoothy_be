@@ -1,0 +1,77 @@
+# Example docker-compose.yaml
+# Copy this file to docker-compose.yaml and fill in your actual API keys
+# DO NOT commit docker-compose.yaml with real API keys to git!
+
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mr_smoothy_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mr_smoothy
+      MYSQL_USER: mr_smoothy_user
+      MYSQL_PASSWORD: mr_smoothy_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: mr_smoothy_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mr_smoothy_api
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mr_smoothy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: mr_smoothy_user
+      SPRING_DATASOURCE_PASSWORD: mr_smoothy_password
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin123
+      MINIO_BUCKET_NAME: mr-smoothy-images
+      # USDA FoodData Central API
+      # Get your API key from: https://fdc.nal.usda.gov/api-guide.html
+      USDA_API_KEY: your_usda_api_key_here
+      # OpenAI API
+      # Get your API key from: https://platform.openai.com/api-keys
+      OPENAI_API_KEY: your_openai_api_key_here
+      OPENAI_MODEL: gpt-4-turbo-preview
+
+volumes:
+  mysql_data:
+  minio_data:
+

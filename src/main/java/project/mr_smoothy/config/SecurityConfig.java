@@ -16,7 +16,7 @@ public class SecurityConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                             "http://localhost:3000",
-                            "https://yourdomain.com"
+                            "https://mr-smoothy.thetigerteamacademy.net"
                         )
                         .allowedMethods("*")
                         .allowedHeaders("*")

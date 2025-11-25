@@ -8,29 +8,34 @@ import project.mr_smoothy.entity.Fruit;
 
 import java.math.BigDecimal;
 
+/**
+ * Response DTO for ingredient addition with nutrition data
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FruitResponse {
+public class IngredientAddResponse {
     private Long id;
     private String name;
     private String description;
-    private BigDecimal pricePerUnit;
     private String imageUrl;
+    private BigDecimal pricePerUnit;
     private Fruit.Category category;
     private Boolean active;
     private Boolean seasonal;
     
-    // Nutrition Data (optional - may be null if not fetched)
+    // Nutrition Data
     private BigDecimal calorie;
     private BigDecimal protein;
     private BigDecimal fiber;
-    private String vitamins;
-    private String minerals;
+    private String vitamins; // JSON string
+    private String minerals; // JSON string
+    
+    // Flavor & Pairing Data
     private String flavorProfile;
     private String tasteNotes;
-    private String bestMixPairing;
-    private String avoidPairing;
+    private String bestMixPairing; // JSON string
+    private String avoidPairing; // JSON string
 }
 
