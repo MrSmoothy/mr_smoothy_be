@@ -15,6 +15,7 @@ import project.mr_smoothy.entity.Fruit;
 import project.mr_smoothy.repository.FruitRepository;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class FruitService {
 
     private final FruitRepository fruitRepository;
     private final USDAService usdaService;
+    private final USDADataParser usdaDataParser;
     private final OpenAIService openAIService;
     private final ObjectMapper objectMapper;
     
@@ -96,13 +98,26 @@ public class FruitService {
             // Step 2: Get detailed USDA data
             JsonNode usdaDetails = usdaService.getFoodDetails(fdcId);
 
-            // Step 3: Process with OpenAI
-            Map<String, Object> processedData = openAIService.processIngredientData(
-                    fruit.getName(), 
-                    usdaDetails
-            );
+            // Step 3: Parse nutrition data directly from USDA (no AI needed - saves tokens!)
+            Map<String, Object> nutritionData = usdaDataParser.parseUSDAData(fruit.getName(), usdaDetails);
 
-            // Step 4: Set nutrition data
+            // Step 4: Get flavor profile from OpenAI (optional, uses minimal tokens)
+            Map<String, Object> flavorData = new HashMap<>();
+            try {
+                String flavorPrompt = openAIService.buildFlavorAnalysisPrompt(fruit.getName(), nutritionData);
+                String flavorResponse = openAIService.callOpenAI(flavorPrompt);
+                flavorData = openAIService.parseOpenAIResponse(flavorResponse);
+            } catch (Exception e) {
+                log.warn("Failed to generate flavor profile for {}: {}. Continuing without flavor data.", 
+                        fruit.getName(), e.getMessage());
+                // Continue without flavor data - not critical
+            }
+
+            // Step 5: Merge nutrition and flavor data
+            Map<String, Object> processedData = new HashMap<>(nutritionData);
+            processedData.putAll(flavorData);
+
+            // Step 6: Set nutrition data
             setNutritionDataFromProcessed(fruit, processedData, usdaDetails);
             
         } catch (Exception e) {

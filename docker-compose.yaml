@@ -99,11 +99,11 @@ services:
       # IMPORTANT: Set your actual API keys via environment variables or .env file
       # Do NOT commit real API keys to git!
       # Example: export USDA_API_KEY=your_key_here before running docker-compose
-      USDA_API_KEY: ${USDA_API_KEY:your_usda_api_key_here}
+      USDA_API_KEY: ${USDA_API_KEY:-your_usda_api_key_here}
       # OpenAI API
       # Example: export OPENAI_API_KEY=your_key_here before running docker-compose
-      OPENAI_API_KEY: ${OPENAI_API_KEY:your_openai_api_key_here}
-      OPENAI_MODEL: ${OPENAI_MODEL:gpt-4-turbo-preview}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-your_openai_api_key_here}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
     depends_on:
       db:
         condition: service_healthy

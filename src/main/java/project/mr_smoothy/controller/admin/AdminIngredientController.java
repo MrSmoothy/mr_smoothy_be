@@ -39,9 +39,27 @@ public class AdminIngredientController {
         
         try {
             IngredientAddResponse response = ingredientService.addIngredientWithNutrition(request);
-            return ResponseEntity.ok(ApiResponse.success("Ingredient added successfully with nutrition data", response));
+            
+            // Check if nutrition data was fetched
+            boolean hasNutritionData = response.getCalorie() != null && 
+                                      response.getProtein() != null && 
+                                      response.getFiber() != null;
+            
+            String message = hasNutritionData 
+                ? "Ingredient added successfully with nutrition data" 
+                : "Ingredient added successfully. Note: Nutrition data could not be fetched. " +
+                  "Please ensure USDA_API_KEY is configured in docker-compose.yaml to fetch nutrition data.";
+            
+            return ResponseEntity.ok(ApiResponse.success(message, response));
         } catch (Exception e) {
             log.error("Error adding ingredient: {}", e.getMessage(), e);
+            
+            // If error is about ingredient already existing, return specific message
+            if (e.getMessage() != null && e.getMessage().contains("already exists")) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error(e.getMessage()));
+            }
+            
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("Failed to add ingredient: " + e.getMessage()));
         }

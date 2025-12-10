@@ -13,6 +13,7 @@ import project.mr_smoothy.entity.Fruit;
 import project.mr_smoothy.repository.FruitRepository;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,6 +27,7 @@ public class IngredientService {
 
     private final FruitRepository fruitRepository;
     private final USDAService usdaService;
+    private final USDADataParser usdaDataParser;
     private final OpenAIService openAIService;
     private final ObjectMapper objectMapper;
 
@@ -40,24 +42,71 @@ public class IngredientService {
             throw new RuntimeException("Ingredient with name '" + request.getName() + "' already exists");
         }
 
-        // Step 1: Search USDA API
-        JsonNode searchResponse = usdaService.searchFood(request.getName());
-        Integer fdcId = usdaService.extractFdcId(searchResponse);
+        // Step 1: REQUIRED - Fetch nutrition data from USDA (must succeed)
+        // Note: USDAService will automatically translate Thai names to English
+        Map<String, Object> processedData = new HashMap<>();
+        JsonNode usdaDetails = null;
         
-        if (fdcId == null) {
-            throw new RuntimeException("Could not find USDA data for: " + request.getName());
+        try {
+            JsonNode searchResponse = usdaService.searchFood(request.getName());
+            Integer fdcId = usdaService.extractFdcId(searchResponse);
+            
+            if (fdcId == null) {
+                throw new RuntimeException(
+                    "ไม่พบข้อมูลโภชนาการสำหรับ: " + request.getName() + 
+                    " ใน USDA database.\n\n" +
+                    "กรุณาตรวจสอบ:\n" +
+                    "1. ตรวจสอบว่า USDA_API_KEY ถูกตั้งค่าใน docker-compose.yaml\n" +
+                    "2. ชื่อวัตถุดิบถูกต้อง (ระบบจะแปลชื่อไทยเป็นอังกฤษให้อัตโนมัติ)\n" +
+                    "3. ลองใช้ชื่ออังกฤษตรงๆ เช่น 'Grape', 'Banana', 'Strawberry'\n\n" +
+                    "หรือแก้ไขวัตถุดิบนี้ภายหลังและกดปุ่ม 'ดึงข้อมูลโภชนาการ' เพื่อลองอีกครั้ง"
+                );
+            }
+
+            // Step 2: Get detailed USDA data
+            usdaDetails = usdaService.getFoodDetails(fdcId);
+
+            // Step 3: Parse nutrition data directly from USDA (no AI needed - saves tokens!)
+            Map<String, Object> nutritionData = usdaDataParser.parseUSDAData(request.getName(), usdaDetails);
+            processedData.putAll(nutritionData);
+
+            // Validate that we got essential nutrition data
+            if (!processedData.containsKey("calorie") || processedData.get("calorie") == null) {
+                throw new RuntimeException(
+                    "ไม่สามารถดึงข้อมูลโภชนาการพื้นฐาน (แคลอรี่) สำหรับ: " + request.getName() + 
+                    " กรุณาลองใหม่อีกครั้งหรือแก้ไขภายหลัง"
+                );
+            }
+
+            // Step 4: Get flavor profile and pairing suggestions from OpenAI (optional, uses minimal tokens)
+            Map<String, Object> flavorData = new HashMap<>();
+            try {
+                String flavorPrompt = openAIService.buildFlavorAnalysisPrompt(request.getName(), nutritionData);
+                String flavorResponse = openAIService.callOpenAI(flavorPrompt);
+                flavorData = openAIService.parseOpenAIResponse(flavorResponse);
+                log.info("Successfully generated flavor profile for: {}", request.getName());
+            } catch (Exception e) {
+                log.warn("Failed to generate flavor profile for {}: {}. Continuing without flavor data.", 
+                        request.getName(), e.getMessage());
+                // Continue without flavor data - not critical
+            }
+
+            // Step 5: Merge nutrition and flavor data
+            processedData.putAll(flavorData);
+        } catch (RuntimeException e) {
+            // Re-throw with helpful message
+            throw e;
+        } catch (Exception e) {
+            log.error("Error fetching nutrition data for {}: {}", request.getName(), e.getMessage(), e);
+            throw new RuntimeException(
+                "ไม่สามารถดึงข้อมูลโภชนาการสำหรับ: " + request.getName() + 
+                " เนื่องจาก: " + e.getMessage() +
+                "\nกรุณาตรวจสอบ USDA_API_KEY ใน docker-compose.yaml หรือแก้ไขวัตถุดิบนี้ภายหลังเพื่อดึงข้อมูลโภชนาการ",
+                e
+            );
         }
 
-        // Step 2: Get detailed USDA data
-        JsonNode usdaDetails = usdaService.getFoodDetails(fdcId);
-
-        // Step 3: Process with OpenAI
-        Map<String, Object> processedData = openAIService.processIngredientData(
-                request.getName(), 
-                usdaDetails
-        );
-
-        // Step 4: Create and save ingredient
+        // Step 6: Create and save ingredient
         Fruit ingredient = new Fruit();
         ingredient.setName(request.getName());
         ingredient.setDescription(request.getDescription());
@@ -71,7 +120,8 @@ public class IngredientService {
         ingredient.setActive(request.getActive() != null ? request.getActive() : true);
         ingredient.setSeasonal(request.getSeasonal() != null ? request.getSeasonal() : false);
 
-        // Set nutrition data from OpenAI response
+        // Set nutrition data (from parser) and flavor data (from OpenAI)
+        // This should always have data since we throw error if fetch fails
         setNutritionData(ingredient, processedData, usdaDetails);
 
         Fruit saved = fruitRepository.save(ingredient);
@@ -95,20 +145,46 @@ public class IngredientService {
             Integer fdcId = usdaService.extractFdcId(searchResponse);
             
             if (fdcId == null) {
-                throw new RuntimeException("Could not find USDA data for: " + ingredient.getName() + 
-                        ". Please make sure the ingredient name is in English.");
+                throw new RuntimeException(
+                    "ไม่พบข้อมูลโภชนาการสำหรับ: " + ingredient.getName() + 
+                    " ใน USDA database. กรุณาตรวจสอบว่า:" +
+                    "\n1. ชื่อวัตถุดิบเป็นภาษาอังกฤษ (เช่น 'Grape' แทน 'องุ่น')" +
+                    "\n2. USDA_API_KEY ถูกตั้งค่าใน docker-compose.yaml" +
+                    "\n3. ชื่อวัตถุดิบถูกต้อง"
+                );
             }
 
             // Step 2: Get detailed USDA data
             JsonNode usdaDetails = usdaService.getFoodDetails(fdcId);
 
-            // Step 3: Process with OpenAI
-            Map<String, Object> processedData = openAIService.processIngredientData(
-                    ingredient.getName(), 
-                    usdaDetails
-            );
+            // Step 3: Parse nutrition data directly from USDA (no AI needed - saves tokens!)
+            Map<String, Object> nutritionData = usdaDataParser.parseUSDAData(ingredient.getName(), usdaDetails);
 
-            // Step 4: Update nutrition data
+            // Validate that we got essential nutrition data
+            if (!nutritionData.containsKey("calorie") || nutritionData.get("calorie") == null) {
+                throw new RuntimeException(
+                    "ไม่สามารถดึงข้อมูลโภชนาการพื้นฐาน (แคลอรี่) สำหรับ: " + ingredient.getName()
+                );
+            }
+
+            // Step 4: Get flavor profile and pairing suggestions from OpenAI (optional, uses minimal tokens)
+            Map<String, Object> flavorData = new HashMap<>();
+            try {
+                String flavorPrompt = openAIService.buildFlavorAnalysisPrompt(ingredient.getName(), nutritionData);
+                String flavorResponse = openAIService.callOpenAI(flavorPrompt);
+                flavorData = openAIService.parseOpenAIResponse(flavorResponse);
+                log.info("Successfully generated flavor profile for: {}", ingredient.getName());
+            } catch (Exception e) {
+                log.warn("Failed to generate flavor profile for {}: {}. Continuing without flavor data.", 
+                        ingredient.getName(), e.getMessage());
+                // Continue without flavor data - not critical
+            }
+
+            // Step 5: Merge nutrition and flavor data
+            Map<String, Object> processedData = new HashMap<>(nutritionData);
+            processedData.putAll(flavorData);
+
+            // Step 6: Update nutrition data
             setNutritionData(ingredient, processedData, usdaDetails);
 
             Fruit saved = fruitRepository.save(ingredient);
@@ -163,8 +239,10 @@ public class IngredientService {
             throw new RuntimeException("Failed to process ingredient data: " + e.getMessage(), e);
         }
 
-        // Store raw USDA data
-        ingredient.setRawUsdaData(usdaDetails.toString());
+        // Store raw USDA data if available
+        if (usdaDetails != null) {
+            ingredient.setRawUsdaData(usdaDetails.toString());
+        }
     }
 
     /**

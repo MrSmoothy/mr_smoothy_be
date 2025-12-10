@@ -28,7 +28,7 @@ public class OpenAIService {
     @Value("${openai.api.key}")
     private String openaiApiKey;
 
-    @Value("${openai.api.model:gpt-4-turbo-preview}")
+    @Value("${openai.api.model:gpt-4o-mini}")
     private String openaiModel;
 
     @Value("${openai.api.base-url:https://api.openai.com/v1}")
@@ -36,18 +36,31 @@ public class OpenAIService {
 
     /**
      * Process USDA data and generate structured nutrition/flavor information
+     * DEPRECATED: This method sends full USDA JSON to OpenAI which is expensive.
+     * Use USDADataParser.parseUSDAData() for nutrition data instead.
+     * This method is kept for backward compatibility but not recommended.
+     * 
      * @param ingredientName The name of the ingredient
      * @param usdaData The raw USDA JSON data
      * @return Structured JSON with nutrition and flavor data
      */
+    @Deprecated
     public Map<String, Object> processIngredientData(String ingredientName, JsonNode usdaData) {
         try {
-            log.info("Processing ingredient data with OpenAI for: {}", ingredientName);
+            log.warn("DEPRECATED: processIngredientData is expensive. Use USDADataParser instead for: {}", ingredientName);
 
-            String prompt = buildIngredientProcessingPrompt(ingredientName, usdaData);
+            String prompt = String.format(
+                "Extract nutrition data from USDA JSON and provide flavor analysis.\n\n" +
+                "Ingredient: %s\n" +
+                "USDA Data: %s\n\n" +
+                "Return JSON: {\"calorie\": <number>, \"protein\": <number>, \"fiber\": <number>, " +
+                "\"vitamins\": {...}, \"minerals\": {...}, \"flavor_profile\": \"...\", " +
+                "\"taste_notes\": \"...\", \"best_mix_pairing\": [...], \"avoid_pairing\": [...]}",
+                ingredientName,
+                usdaData.toString().substring(0, Math.min(2000, usdaData.toString().length())) // Limit size
+            );
+            
             String response = callOpenAI(prompt);
-
-            // Parse OpenAI response
             Map<String, Object> result = parseOpenAIResponse(response);
             
             log.info("Successfully processed ingredient data for: {}", ingredientName);
@@ -83,27 +96,26 @@ public class OpenAIService {
         }
     }
 
-    private String buildIngredientProcessingPrompt(String ingredientName, JsonNode usdaData) {
+    /**
+     * Build prompt for flavor and pairing analysis only
+     * Nutrition data is now parsed directly from USDA data
+     */
+    public String buildFlavorAnalysisPrompt(String ingredientName, Map<String, Object> nutritionData) {
         return String.format(
-            "You are a nutrition and flavor-analysis expert. Clean, normalize, and convert the USDA data " +
-            "into structured JSON for database storage.\n\n" +
-            "Ingredient Name: %s\n\n" +
-            "USDA Data:\n%s\n\n" +
-            "Please provide a JSON object with the following structure (return JSON only, no markdown):\n" +
+            "Analyze the flavor profile and pairing suggestions for this ingredient.\n\n" +
+            "Ingredient: %s\n" +
+            "Nutrition (per 100g): Calories: %.1f, Protein: %.1fg, Fiber: %.1fg\n\n" +
+            "Return JSON only (no markdown):\n" +
             "{\n" +
-            "  \"calorie\": <number>, // calories per 100g\n" +
-            "  \"protein\": <number>, // grams per 100g\n" +
-            "  \"fiber\": <number>, // grams per 100g\n" +
-            "  \"vitamins\": {\"vitaminC\": <number>, \"vitaminA\": <number>, ...}, // all vitamins in mg or IU\n" +
-            "  \"minerals\": {\"calcium\": <number>, \"iron\": <number>, ...}, // all minerals in mg\n" +
-            "  \"flavor_profile\": \"<description>\", // e.g., \"sweet, tropical\"\n" +
-            "  \"taste_notes\": \"<detailed description>\", // detailed taste description\n" +
-            "  \"best_mix_pairing\": [\"<ingredient1>\", \"<ingredient2>\", ...], // array of ingredient names\n" +
-            "  \"avoid_pairing\": [\"<ingredient1>\", \"<ingredient2>\", ...] // array of ingredients to avoid\n" +
-            "}\n\n" +
-            "Extract all available nutrition data from the USDA data. If any data is missing, use reasonable defaults based on the ingredient type.",
+            "  \"flavor_profile\": \"<brief description>\",\n" +
+            "  \"taste_notes\": \"<detailed description>\",\n" +
+            "  \"best_mix_pairing\": [\"<ingredient1>\", \"<ingredient2>\", ...],\n" +
+            "  \"avoid_pairing\": [\"<ingredient1>\", ...]\n" +
+            "}",
             ingredientName,
-            usdaData.toString()
+            ((Number) nutritionData.getOrDefault("calorie", 0)).doubleValue(),
+            ((Number) nutritionData.getOrDefault("protein", 0)).doubleValue(),
+            ((Number) nutritionData.getOrDefault("fiber", 0)).doubleValue()
         );
     }
 
@@ -154,7 +166,7 @@ public class OpenAIService {
                     Map.of("role", "user", "content", prompt)
             ));
             requestBody.put("temperature", 0.7);
-            requestBody.put("max_tokens", 2000);
+            requestBody.put("max_tokens", 1000); // Reduced from 2000 to save tokens
 
             String response = webClient.post()
                     .uri("/chat/completions")
@@ -202,7 +214,7 @@ public class OpenAIService {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> parseOpenAIResponse(String response) {
+    public Map<String, Object> parseOpenAIResponse(String response) {
         try {
             JsonNode jsonNode = objectMapper.readTree(response);
             return (Map<String, Object>) objectMapper.convertValue(jsonNode, Map.class);
