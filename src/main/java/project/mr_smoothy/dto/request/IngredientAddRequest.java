@@ -19,5 +19,8 @@ public class IngredientAddRequest {
     private project.mr_smoothy.entity.Fruit.Category category;
     private Boolean active = true;
     private Boolean seasonal = false;
+    
+    // Option to fetch nutrition data from USDA (default: true for backward compatibility)
+    private Boolean fetchNutrition = true;
 }
 
