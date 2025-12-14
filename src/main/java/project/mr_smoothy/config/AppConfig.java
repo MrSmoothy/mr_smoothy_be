@@ -28,7 +28,4 @@ public class AppConfig {
                 .modules(new JavaTimeModule())
                 .build();
     }
-
-
-
-
+}
