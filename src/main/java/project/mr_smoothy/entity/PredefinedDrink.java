@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,9 @@ public class PredefinedDrink {
     
     @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "base_price", precision = 10, scale = 2)
+    private BigDecimal basePrice; // ราคาพื้นฐาน (ถ้าไม่กำหนดจะคำนวณจากส่วนผสม)
 
     @Column(nullable = false)
     private Boolean active = true;

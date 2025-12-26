@@ -16,6 +16,7 @@ public class PredefinedDrinkResponse {
     private String name;
     private String description;
     private String imageUrl;
+    private java.math.BigDecimal basePrice;
     private Boolean active;
     private List<IngredientInfo> ingredients;
     

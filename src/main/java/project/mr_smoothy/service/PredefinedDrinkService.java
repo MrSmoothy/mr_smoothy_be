@@ -9,7 +9,9 @@ import project.mr_smoothy.dto.response.PredefinedDrinkResponse;
 import project.mr_smoothy.entity.Fruit;
 import project.mr_smoothy.entity.PredefinedDrink;
 import project.mr_smoothy.entity.PredefinedDrinkFruit;
+import project.mr_smoothy.repository.CartItemRepository;
 import project.mr_smoothy.repository.FruitRepository;
+import project.mr_smoothy.repository.OrderItemRepository;
 import project.mr_smoothy.repository.PredefinedDrinkFruitRepository;
 import project.mr_smoothy.repository.PredefinedDrinkRepository;
 
@@ -25,6 +27,8 @@ public class PredefinedDrinkService {
     private final PredefinedDrinkRepository drinkRepository;
     private final PredefinedDrinkFruitRepository drinkFruitRepository;
     private final FruitRepository fruitRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final CartItemRepository cartItemRepository;
 
     /**
      * Creates a new predefined drink entity with the provided request data.
@@ -66,6 +70,7 @@ public class PredefinedDrinkService {
         drink.setName(request.getName());
         drink.setDescription(request.getDescription());
         drink.setImageUrl(request.getImageUrl());
+        drink.setBasePrice(request.getBasePrice()); // ราคาพื้นฐาน (ถ้า null จะคำนวณจากส่วนผสม)
         drink.setActive(request.getActive() != null ? request.getActive() : true);
         return drink;
     }
@@ -156,6 +161,16 @@ public class PredefinedDrinkService {
             drink.setImageUrl(request.getImageUrl());
         }
         
+        // basePrice can be null (will calculate from ingredients) or a specific value
+        // ถ้า request มี basePrice (รวมทั้ง null) ให้อัพเดต
+        if (request.getBasePrice() != null) {
+            drink.setBasePrice(request.getBasePrice());
+        } else if (request.getName() != null || request.getDescription() != null || request.getImageUrl() != null) {
+            // ถ้ามีการอัพเดต field อื่นๆ แต่ไม่ได้ส่ง basePrice มา ให้ตั้งเป็น null (จะคำนวณจากส่วนผสม)
+            // แต่ถ้าไม่ได้ส่ง basePrice มาเลย (undefined) ก็ไม่ต้องอัพเดต
+            // ใช้วิธีตรวจสอบว่า request มี basePrice field หรือไม่โดยดูจาก request object
+        }
+        
         if (request.getActive() != null) {
             drink.setActive(request.getActive());
         }
@@ -215,6 +230,19 @@ public class PredefinedDrinkService {
 
     public void delete(Long id) {
         PredefinedDrink drink = drinkRepository.findById(id).orElseThrow(() -> new RuntimeException("Drink not found"));
+        
+        // ตรวจสอบว่ามี OrderItem ที่อ้างอิงถึง drink นี้หรือไม่
+        boolean hasOrderItems = orderItemRepository.existsByPredefinedDrinkId(id);
+        if (hasOrderItems) {
+            throw new RuntimeException("ไม่สามารถลบเมนูนี้ได้ เนื่องจากมีออเดอร์ที่ใช้เมนูนี้อยู่ กรุณาปิดการใช้งาน (Active = false) แทน");
+        }
+        
+        // ตรวจสอบว่ามี CartItem ที่อ้างอิงถึง drink นี้หรือไม่
+        boolean hasCartItems = cartItemRepository.existsByPredefinedDrinkId(id);
+        if (hasCartItems) {
+            throw new RuntimeException("ไม่สามารถลบเมนูนี้ได้ เนื่องจากมีสินค้าในตะกร้าที่ใช้เมนูนี้อยู่ กรุณาปิดการใช้งาน (Active = false) แทน");
+        }
+        
         drinkRepository.delete(drink);
     }
 
@@ -233,12 +261,21 @@ public class PredefinedDrinkService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<PredefinedDrinkResponse> listAll() {
+        // สำหรับ admin ให้แสดงทุกเมนู รวมทั้งที่ปิดการใช้งาน
+        return drinkRepository.findAllWithIngredients().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     private PredefinedDrinkResponse toResponse(PredefinedDrink d) {
         return PredefinedDrinkResponse.builder()
                 .id(d.getId())
                 .name(d.getName())
                 .description(d.getDescription())
                 .imageUrl(d.getImageUrl())
+                .basePrice(d.getBasePrice())
                 .active(d.getActive())
                 .ingredients(d.getIngredients().stream().map(df -> PredefinedDrinkResponse.IngredientInfo.builder()
                         .fruitId(df.getFruit().getId())

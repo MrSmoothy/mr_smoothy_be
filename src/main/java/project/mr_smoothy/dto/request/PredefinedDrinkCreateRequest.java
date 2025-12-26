@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -17,6 +18,7 @@ public class PredefinedDrinkCreateRequest {
     private String description;
     
     private String imageUrl;
+    private BigDecimal basePrice; // ราคาพื้นฐาน (ถ้าไม่กำหนดจะคำนวณจากส่วนผสม)
     
     @NotEmpty(message = "At least one ingredient is required")
     @Valid

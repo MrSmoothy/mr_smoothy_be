@@ -42,7 +42,8 @@ public class AdminPredefinedDrinkController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> list() {
-        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.list()));
+        // สำหรับ admin ให้แสดงทุกเมนู รวมทั้งที่ปิดการใช้งาน
+        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.listAll()));
     }
 }
 
