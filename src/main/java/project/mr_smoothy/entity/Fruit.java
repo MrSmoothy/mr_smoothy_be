@@ -15,9 +15,13 @@ import java.math.BigDecimal;
 public class Fruit {
 
     public enum Category {
-        FRUIT,      // ผลไม้
-        VEGETABLE,  // ผัก
-        ADDON       // ส่วนเสริม เช่น โยเกิร์ต, น้ำผึ้ง, นม
+        ORGANIC_FRUITS,      // ผลไม้ออร์แกนิก
+        ORGANIC_VEGETABLE,   // ผักออร์แกนิก
+        BASE,                // ฐาน
+        SUPERFRUITS,         // ซูเปอร์ฟรุต
+        PROTEIN,             // โปรตีน
+        TOPPING,             // ท็อปปิ้ง
+        SWEETENER            // สารให้ความหวาน
     }
 
     @Id
@@ -37,8 +41,8 @@ public class Fruit {
     private BigDecimal pricePerUnit;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Category category = Category.FRUIT;
+    @Column(nullable = false, length = 50)
+    private Category category = Category.ORGANIC_FRUITS;
 
     @Column(nullable = false)
     private Boolean active = true;

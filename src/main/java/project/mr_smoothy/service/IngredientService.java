@@ -112,7 +112,7 @@ public class IngredientService {
                 : BigDecimal.ZERO);
         ingredient.setCategory(request.getCategory() != null 
                 ? request.getCategory() 
-                : Fruit.Category.FRUIT);
+                : Fruit.Category.ORGANIC_FRUITS);
         ingredient.setActive(request.getActive() != null ? request.getActive() : true);
         ingredient.setSeasonal(request.getSeasonal() != null ? request.getSeasonal() : false);
 

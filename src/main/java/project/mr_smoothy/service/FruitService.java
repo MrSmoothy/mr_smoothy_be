@@ -44,7 +44,7 @@ public class FruitService {
         fruit.setDescription(request.getDescription());
         fruit.setImageUrl(request.getImageUrl());
         fruit.setPricePerUnit(request.getPricePerUnit());
-        fruit.setCategory(request.getCategory() != null ? request.getCategory() : Fruit.Category.FRUIT);
+        fruit.setCategory(request.getCategory() != null ? request.getCategory() : Fruit.Category.ORGANIC_FRUITS);
         fruit.setActive(request.getActive() != null ? request.getActive() : true);
         fruit.setSeasonal(request.getSeasonal() != null ? request.getSeasonal() : false);
         

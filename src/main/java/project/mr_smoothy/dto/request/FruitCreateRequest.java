@@ -22,7 +22,7 @@ public class FruitCreateRequest {
     
     private String imageUrl;
     
-    private Fruit.Category category = Fruit.Category.FRUIT;
+    private Fruit.Category category = Fruit.Category.ORGANIC_FRUITS;
     
     private Boolean active = true;
     
