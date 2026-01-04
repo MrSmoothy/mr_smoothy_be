@@ -21,6 +21,8 @@ public class PredefinedDrinkUpdateRequest {
     
     private Boolean active;
     
+    private Boolean popular; // สำหรับตั้งค่า popular menu
+    
     @Data
     public static class Ingredient {
         private Long fruitId;

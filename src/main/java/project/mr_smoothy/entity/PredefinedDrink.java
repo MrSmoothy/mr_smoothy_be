@@ -47,6 +47,9 @@ public class PredefinedDrink {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @Column(nullable = false)
+    private Boolean popular = false; // สำหรับแสดงในหน้า home popular menu
+
     @OneToMany(mappedBy = "drink", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PredefinedDrinkFruit> ingredients = new ArrayList<>();
 }

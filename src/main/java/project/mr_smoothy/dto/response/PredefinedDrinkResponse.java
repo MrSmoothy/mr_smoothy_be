@@ -20,6 +20,7 @@ public class PredefinedDrinkResponse {
     private java.math.BigDecimal basePrice;
     private PredefinedDrink.Category category;
     private Boolean active;
+    private Boolean popular;
     private List<IngredientInfo> ingredients;
     
     @Data

@@ -29,6 +29,8 @@ public class PredefinedDrinkCreateRequest {
     
     private Boolean active = true;
     
+    private Boolean popular = false; // สำหรับแสดงในหน้า home popular menu
+    
     @Data
     public static class Ingredient {
         @NotNull(message = "Fruit ID is required")

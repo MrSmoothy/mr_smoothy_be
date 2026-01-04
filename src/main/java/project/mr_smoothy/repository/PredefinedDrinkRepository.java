@@ -27,6 +27,12 @@ public interface PredefinedDrinkRepository extends JpaRepository<PredefinedDrink
            "LEFT JOIN FETCH i.fruit " +
            "WHERE d.id = :id")
     Optional<PredefinedDrink> findByIdWithIngredients(@Param("id") Long id);
+    
+    @Query("SELECT DISTINCT d FROM PredefinedDrink d " +
+           "LEFT JOIN FETCH d.ingredients i " +
+           "LEFT JOIN FETCH i.fruit " +
+           "WHERE d.active = true AND d.popular = true")
+    List<PredefinedDrink> findPopularWithIngredients();
 }
 
 

@@ -75,6 +75,7 @@ public class PredefinedDrinkService {
                 ? request.getCategory() 
                 : PredefinedDrink.Category.SIGNATURE);
         drink.setActive(request.getActive() != null ? request.getActive() : true);
+        drink.setPopular(request.getPopular() != null ? request.getPopular() : false);
         return drink;
     }
     
@@ -181,6 +182,10 @@ public class PredefinedDrinkService {
         if (request.getActive() != null) {
             drink.setActive(request.getActive());
         }
+        
+        if (request.getPopular() != null) {
+            drink.setPopular(request.getPopular());
+        }
     }
     
     /**
@@ -276,6 +281,29 @@ public class PredefinedDrinkService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<PredefinedDrinkResponse> listPopular() {
+        // สำหรับหน้า home - แสดงเฉพาะ popular menu ที่ active
+        return drinkRepository.findPopularWithIngredients().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public PredefinedDrinkResponse setPopular(Long id, Boolean popular) {
+        PredefinedDrink drink = drinkRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Drink not found"));
+        
+        drink.setPopular(popular != null ? popular : false);
+        PredefinedDrink savedDrink = drinkRepository.save(drink);
+        
+        // Reload with ingredients
+        PredefinedDrink refreshedDrink = drinkRepository.findByIdWithIngredients(savedDrink.getId())
+                .orElseThrow(() -> new RuntimeException("Drink not found after update"));
+        
+        return toResponse(refreshedDrink);
+    }
+
     private PredefinedDrinkResponse toResponse(PredefinedDrink d) {
         return PredefinedDrinkResponse.builder()
                 .id(d.getId())
@@ -285,6 +313,7 @@ public class PredefinedDrinkService {
                 .basePrice(d.getBasePrice())
                 .category(d.getCategory())
                 .active(d.getActive())
+                .popular(d.getPopular())
                 .ingredients(d.getIngredients().stream().map(df -> PredefinedDrinkResponse.IngredientInfo.builder()
                         .fruitId(df.getFruit().getId())
                         .fruitName(df.getFruit().getName())

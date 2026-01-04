@@ -55,6 +55,23 @@ public class AdminPredefinedDrinkController {
         // สำหรับ admin ให้แสดงทุกเมนู รวมทั้งที่ปิดการใช้งาน
         return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.listAll()));
     }
+
+    @PutMapping("/{id}/popular")
+    public ResponseEntity<ApiResponse<PredefinedDrinkResponse>> setPopular(
+            @PathVariable Long id,
+            @RequestParam Boolean popular) {
+        log.info("PUT /api/admin/drinks/{}/popular - Setting popular to: {}", id, popular);
+        try {
+            PredefinedDrinkResponse response = predefinedDrinkService.setPopular(id, popular);
+            log.info("Successfully updated popular status for drink ID: {}", id);
+            return ResponseEntity.ok(ApiResponse.success(
+                    popular ? "Menu set as popular" : "Menu removed from popular",
+                    response));
+        } catch (Exception e) {
+            log.error("Error updating popular status: {}", e.getMessage(), e);
+            throw e; // Let GlobalExceptionHandler handle it
+        }
+    }
 }
 
 
