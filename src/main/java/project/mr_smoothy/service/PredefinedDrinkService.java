@@ -71,6 +71,9 @@ public class PredefinedDrinkService {
         drink.setDescription(request.getDescription());
         drink.setImageUrl(request.getImageUrl());
         drink.setBasePrice(request.getBasePrice()); // ราคาพื้นฐาน (ถ้า null จะคำนวณจากส่วนผสม)
+        drink.setCategory(request.getCategory() != null 
+                ? request.getCategory() 
+                : PredefinedDrink.Category.OTHER);
         drink.setActive(request.getActive() != null ? request.getActive() : true);
         return drink;
     }
@@ -169,6 +172,10 @@ public class PredefinedDrinkService {
             // ถ้ามีการอัพเดต field อื่นๆ แต่ไม่ได้ส่ง basePrice มา ให้ตั้งเป็น null (จะคำนวณจากส่วนผสม)
             // แต่ถ้าไม่ได้ส่ง basePrice มาเลย (undefined) ก็ไม่ต้องอัพเดต
             // ใช้วิธีตรวจสอบว่า request มี basePrice field หรือไม่โดยดูจาก request object
+        }
+        
+        if (request.getCategory() != null) {
+            drink.setCategory(request.getCategory());
         }
         
         if (request.getActive() != null) {
@@ -276,6 +283,7 @@ public class PredefinedDrinkService {
                 .description(d.getDescription())
                 .imageUrl(d.getImageUrl())
                 .basePrice(d.getBasePrice())
+                .category(d.getCategory())
                 .active(d.getActive())
                 .ingredients(d.getIngredients().stream().map(df -> PredefinedDrinkResponse.IngredientInfo.builder()
                         .fruitId(df.getFruit().getId())

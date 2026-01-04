@@ -16,6 +16,17 @@ import java.util.List;
 @AllArgsConstructor
 public class PredefinedDrink {
 
+    public enum Category {
+        CLASSIC,           // คลาสสิก
+        FRUITY,            // ผลไม้
+        HEALTHY,           // สุขภาพ
+        ENERGY,            // ให้พลังงาน
+        DESSERT,           // ของหวาน
+        REFRESHING,        // ดับกระหาย
+        SMOOTHIE,          // สมูทตี้
+        OTHER              // อื่นๆ
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +42,10 @@ public class PredefinedDrink {
 
     @Column(name = "base_price", precision = 10, scale = 2)
     private BigDecimal basePrice; // ราคาพื้นฐาน (ถ้าไม่กำหนดจะคำนวณจากส่วนผสม)
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private Category category = Category.OTHER;
 
     @Column(nullable = false)
     private Boolean active = true;

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import project.mr_smoothy.entity.PredefinedDrink;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class PredefinedDrinkResponse {
     private String description;
     private String imageUrl;
     private java.math.BigDecimal basePrice;
+    private PredefinedDrink.Category category;
     private Boolean active;
     private List<IngredientInfo> ingredients;
     
