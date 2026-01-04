@@ -73,7 +73,7 @@ public class PredefinedDrinkService {
         drink.setBasePrice(request.getBasePrice()); // ราคาพื้นฐาน (ถ้า null จะคำนวณจากส่วนผสม)
         drink.setCategory(request.getCategory() != null 
                 ? request.getCategory() 
-                : PredefinedDrink.Category.OTHER);
+                : PredefinedDrink.Category.SIGNATURE);
         drink.setActive(request.getActive() != null ? request.getActive() : true);
         return drink;
     }

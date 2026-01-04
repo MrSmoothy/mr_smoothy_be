@@ -17,14 +17,11 @@ import java.util.List;
 public class PredefinedDrink {
 
     public enum Category {
-        CLASSIC,           // คลาสสิก
-        FRUITY,            // ผลไม้
-        HEALTHY,           // สุขภาพ
-        ENERGY,            // ให้พลังงาน
-        DESSERT,           // ของหวาน
-        REFRESHING,        // ดับกระหาย
-        SMOOTHIE,          // สมูทตี้
-        OTHER              // อื่นๆ
+        SIGNATURE,         // ⭐ Signature
+        CLASSIC,           // 🍹 Classic
+        GREEN_BOOSTER,     // 🥬 Green Booster
+        HIGH_PROTEIN,      // 💪 High-Protein
+        SUPERFRUIT         // 🍇 Superfruit
     }
 
     @Id
@@ -45,7 +42,7 @@ public class PredefinedDrink {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private Category category = Category.OTHER;
+    private Category category = Category.SIGNATURE;
 
     @Column(nullable = false)
     private Boolean active = true;

@@ -2,6 +2,7 @@ package project.mr_smoothy.controller.admin;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.mr_smoothy.dto.request.PredefinedDrinkCreateRequest;
@@ -15,13 +16,22 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/drinks")
 @RequiredArgsConstructor
+@Slf4j
 public class AdminPredefinedDrinkController {
 
     private final PredefinedDrinkService predefinedDrinkService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<PredefinedDrinkResponse>> create(@Valid @RequestBody PredefinedDrinkCreateRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Created", predefinedDrinkService.create(request)));
+        log.info("POST /api/admin/drinks - Creating new drink: {}", request.getName());
+        try {
+            PredefinedDrinkResponse response = predefinedDrinkService.create(request);
+            log.info("Successfully created drink with ID: {}", response.getId());
+            return ResponseEntity.ok(ApiResponse.success("Created", response));
+        } catch (Exception e) {
+            log.error("Error creating drink: {}", e.getMessage(), e);
+            throw e; // Let GlobalExceptionHandler handle it
+        }
     }
 
     @PutMapping("/{id}")
