@@ -51,9 +51,10 @@ public class AdminPredefinedDrinkController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> list() {
+    public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> list(
+            @RequestParam(required = false) String sortBy) {
         // สำหรับ admin ให้แสดงทุกเมนู รวมทั้งที่ปิดการใช้งาน
-        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.listAll()));
+        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.listAll(sortBy)));
     }
 
     @PutMapping("/{id}/popular")

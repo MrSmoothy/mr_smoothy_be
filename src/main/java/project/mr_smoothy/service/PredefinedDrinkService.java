@@ -15,7 +15,9 @@ import project.mr_smoothy.repository.OrderItemRepository;
 import project.mr_smoothy.repository.PredefinedDrinkFruitRepository;
 import project.mr_smoothy.repository.PredefinedDrinkRepository;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -267,24 +269,42 @@ public class PredefinedDrinkService {
 
     @Transactional(readOnly = true)
     public List<PredefinedDrinkResponse> list() {
+        return list(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PredefinedDrinkResponse> list(String sortBy) {
         return drinkRepository.findAllWithIngredients().stream()
                 .filter(d -> d.getActive())
+                .sorted(getComparator(sortBy))
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<PredefinedDrinkResponse> listAll() {
+        return listAll(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PredefinedDrinkResponse> listAll(String sortBy) {
         // สำหรับ admin ให้แสดงทุกเมนู รวมทั้งที่ปิดการใช้งาน
         return drinkRepository.findAllWithIngredients().stream()
+                .sorted(getComparator(sortBy))
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<PredefinedDrinkResponse> listPopular() {
+        return listPopular(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PredefinedDrinkResponse> listPopular(String sortBy) {
         // สำหรับหน้า home - แสดงเฉพาะ popular menu ที่ active
         return drinkRepository.findPopularWithIngredients().stream()
+                .sorted(getComparator(sortBy))
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -320,6 +340,44 @@ public class PredefinedDrinkService {
                         .quantity(df.getQuantity())
                         .build()).collect(Collectors.toList()))
                 .build();
+    }
+
+    /**
+     * สร้าง Comparator สำหรับ sort drinks ตาม sortBy parameter
+     * รองรับ: price_asc, price_desc, name_asc, name_desc
+     * 
+     * @param sortBy - sort option: "price_asc", "price_desc", "name_asc", "name_desc" หรือ null
+     * @return Comparator สำหรับ sort
+     */
+    private Comparator<PredefinedDrink> getComparator(String sortBy) {
+        if (sortBy == null || sortBy.isEmpty()) {
+            return Comparator.comparing(PredefinedDrink::getId); // default: sort by ID
+        }
+
+        switch (sortBy.toLowerCase()) {
+            case "price_asc":
+                // เรียงราคาน้อยไปมาก (null จะอยู่ท้ายสุด)
+                return Comparator.comparing(
+                    PredefinedDrink::getBasePrice,
+                    Comparator.nullsLast(Comparator.naturalOrder())
+                );
+            case "price_desc":
+                // เรียงราคามากไปน้อย (null จะอยู่ท้ายสุด)
+                return Comparator.comparing(
+                    PredefinedDrink::getBasePrice,
+                    Comparator.nullsLast(Comparator.reverseOrder())
+                );
+            case "name_asc":
+                // เรียงชื่อ A-Z
+                return Comparator.comparing(PredefinedDrink::getName, String.CASE_INSENSITIVE_ORDER);
+            case "name_desc":
+                // เรียงชื่อ Z-A
+                return Comparator.comparing(PredefinedDrink::getName, String.CASE_INSENSITIVE_ORDER)
+                        .reversed();
+            default:
+                // ถ้า sortBy ไม่ตรงกับที่รองรับ ให้ sort ตาม ID
+                return Comparator.comparing(PredefinedDrink::getId);
+        }
     }
 }
 

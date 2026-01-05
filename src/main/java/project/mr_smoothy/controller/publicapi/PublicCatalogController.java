@@ -39,13 +39,15 @@ public class PublicCatalogController {
     }
 
     @GetMapping("/drinks")
-    public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> listDrinks() {
-        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.list()));
+    public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> listDrinks(
+            @RequestParam(required = false) String sortBy) {
+        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.list(sortBy)));
     }
 
     @GetMapping("/drinks/popular")
-    public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> listPopularDrinks() {
-        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.listPopular()));
+    public ResponseEntity<ApiResponse<List<PredefinedDrinkResponse>>> listPopularDrinks(
+            @RequestParam(required = false) String sortBy) {
+        return ResponseEntity.ok(ApiResponse.success("OK", predefinedDrinkService.listPopular(sortBy)));
     }
 
     @GetMapping("/seasonal-ingredients")
