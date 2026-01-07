@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Slf4j
 public class SecurityConfig {
 
-    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:3000,https://mr-smoothy.thetigerteamacademy.net}")
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:3000,https://minio.thanonchai.site,https://mr-smoothy.thanonchai.site,https://mr-smoothy-api.thetigerteamacademy.net}")
     private String corsAllowedOrigins;
 
     @Bean
