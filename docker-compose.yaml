@@ -1,61 +1,61 @@
 version: "3.9"
 
 services:
-  db:
-    image: mysql:8.0
-    container_name: mr_smoothy_db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: mr_smoothy
-      MYSQL_USER: smoothy
-      MYSQL_PASSWORD: smoothypass
-    ports:
-      - "3306:3306"
-    command: ["mysqld", "--bind-address=0.0.0.0", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
-    volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - default
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -prootpass || exit 1"]
-      interval: 3s
-      timeout: 5s
-      retries: 30
-      start_period: 40s
+  # db:
+  #   image: mysql:8.0
+  #   container_name: mr_smoothy_db
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpass
+  #     MYSQL_DATABASE: mr_smoothy
+  #     MYSQL_USER: smoothy
+  #     MYSQL_PASSWORD: smoothypass
+  #   ports:
+  #     - "3306:3306"
+  #   command: ["mysqld", "--bind-address=0.0.0.0", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+  #   volumes:
+  #     - db_data:/var/lib/mysql
+  #   networks:
+  #     - default
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -prootpass || exit 1"]
+  #     interval: 3s
+  #     timeout: 5s
+  #     retries: 30
+  #     start_period: 40s
 
-  phpmyadmin:
-    image: phpmyadmin:5
-    container_name: mr_smoothy_phpmyadmin
-    restart: unless-stopped
-    environment:
-      PMA_HOST: db
-      PMA_USER: root
-      PMA_PASSWORD: rootpass
-    ports:
-      - "8081:80"
-    depends_on:
-      db:
-        condition: service_healthy
+  # phpmyadmin:
+  #   image: phpmyadmin:5
+  #   container_name: mr_smoothy_phpmyadmin
+  #   restart: unless-stopped
+  #   environment:
+  #     PMA_HOST: db
+  #     PMA_USER: root
+  #     PMA_PASSWORD: rootpass
+  #   ports:
+  #     - "8081:80"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
-  minio:
-    image: minio/minio:latest
-    container_name: mr_smoothy_minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin123
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: mr_smoothy_minio
+  #   restart: unless-stopped
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     MINIO_ROOT_USER: minioadmin
+  #     MINIO_ROOT_PASSWORD: minioadmin123
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  #   volumes:
+  #     - minio_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+  #     interval: 30s
+  #     timeout: 20s
+  #     retries: 3
 
 
 
@@ -66,54 +66,39 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # Database - ใส่ค่าตรงๆ
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mr_smoothy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&connectTimeout=60000&socketTimeout=60000&autoReconnect=true
-      SPRING_DATASOURCE_USERNAME: smoothy
-      SPRING_DATASOURCE_PASSWORD: smoothypass
-      # JPA
+      # --- Database Configuration ---
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mr_smoothy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Bangkok&connectTimeout=60000&socketTimeout=60000&autoReconnect=true
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: true
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
-      # Server
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      
+      # --- Server Configuration ---
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: dev
-      # JWT
       JWT_SECRET: 9e62b0c8a4f1d2e3b5c6a7981f2d3c4b5a6e7f8190abcdeffedcba0987654321
       JWT_EXPIRATION: 86400000
-      # MinIO - Internal endpoint สำหรับ backend เชื่อมต่อ MinIO (ใน Docker ใช้ minio:9000)
+
+      # --- MinIO Configuration ---
       MINIO_ENDPOINT: http://minio:9000
-      # MinIO - Public endpoint สำหรับ frontend เข้าถึงรูปภาพ
-      # Localhost (สำหรับ development)
-      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
-      # Server (สำหรับ production - uncomment เมื่อ deploy บน server)
-      # MINIO_PUBLIC_ENDPOINT: http://localhost:9000
-      # CORS - Allowed origins (คั่นด้วย comma)
-      # Localhost (สำหรับ development)
-      # CORS_ALLOWED_ORIGINS: http://localhost:3000
-      # Server (สำหรับ production - uncomment เมื่อ deploy บน server)
-      CORS_ALLOWED_ORIGINS: http://localhost:3000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin123
+      MINIO_PUBLIC_ENDPOINT: https://minio.thanonchai.site
+      # แก้ไข: ใช้ Key ให้ตรงกับที่ตั้งไว้ในไฟล์ MinIO
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: password123
       MINIO_BUCKET_NAME: mr-smoothy-images
-      # USDA FoodData Central API
-      # IMPORTANT: Set your actual API keys via environment variables or .env file
-      # Do NOT commit real API keys to git!
-      # Example: export USDA_API_KEY=your_key_here before running docker-compose
+
+      # --- Other APIs ---
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
       USDA_API_KEY: ${USDA_API_KEY:-your_usda_api_key_here}
-      # OpenAI API
-      # Example: export OPENAI_API_KEY=your_key_here before running docker-compose
       OPENAI_API_KEY: ${OPENAI_API_KEY:-your_openai_api_key_here}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
-    depends_on:
-      db:
-        condition: service_healthy
-      minio:
-        condition: service_started
-    networks:
-      - default
 
-volumes:
-  db_data:
-  minio_data:
+    networks:
+      - gateway-network
+
+networks:
+  gateway-network:
+    external: true
 
 
