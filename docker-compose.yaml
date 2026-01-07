@@ -68,11 +68,11 @@ services:
     environment:
       # --- Database Configuration ---
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mr_smoothy?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Bangkok&connectTimeout=60000&socketTimeout=60000&autoReconnect=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: TTTA@2021
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: true
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
       
       # --- Server Configuration ---
       SERVER_PORT: 8080
