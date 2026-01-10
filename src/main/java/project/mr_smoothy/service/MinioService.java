@@ -18,10 +18,10 @@ public class MinioService {
 
     private final MinioClient minioClient;
 
-    @Value("${minio.endpoint:http://localhost:9000}")
+    @Value("${minio.endpoint:http://minio.thanonchai.site}")
     private String endpoint;
 
-    @Value("${minio.publicEndpoint:http://localhost:9000}")
+    @Value("${minio.publicEndpoint:http://minio.thanonchai.site}")
     private String publicEndpoint;
 
     @Value("${minio.bucketName:mr-smoothy-images}")
@@ -89,7 +89,7 @@ public class MinioService {
 
     public String getFileUrl(String objectName) {
         // MinIO public URL format: http://public-endpoint/bucket-name/object-path
-        // Use publicEndpoint for frontend access (localhost:9000), not internal endpoint (minio:9000)
+        // Use publicEndpoint for frontend access (minio.thanonchai.site), not internal endpoint (minio:9000)
         // Remove leading slash if exists
         String cleanObjectName = objectName.startsWith("/") ? objectName.substring(1) : objectName;
         String url = publicEndpoint + "/" + bucketName + "/" + cleanObjectName;

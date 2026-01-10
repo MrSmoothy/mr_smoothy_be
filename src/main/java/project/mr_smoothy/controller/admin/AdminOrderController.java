@@ -41,6 +41,13 @@ public class AdminOrderController {
         return ResponseEntity.ok(ApiResponse.success("Order status updated", order));
     }
 
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<Void>> deleteOrder(@PathVariable Long orderId) {
+        log.info("DELETE /api/admin/orders/{} - Deleting order", orderId);
+        orderService.deleteOrder(orderId);
+        return ResponseEntity.ok(ApiResponse.success("Order deleted successfully", null));
+    }
+
     // Inner class for request body
     @lombok.Data
     static class UpdateStatusRequest {

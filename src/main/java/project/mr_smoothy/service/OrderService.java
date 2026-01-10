@@ -277,6 +277,22 @@ public class OrderService {
         }
     }
 
+    /**
+     * Deletes an order (admin only).
+     * This method deletes the order and all associated order items.
+     * 
+     * @param orderId The order ID to delete
+     */
+    @Transactional
+    public void deleteOrder(Long orderId) {
+        log.info("Deleting order {}", orderId);
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+        
+        orderRepository.delete(order);
+        log.info("Order {} deleted successfully", orderId);
+    }
+
     private OrderResponse convertToResponse(Order order) {
         List<OrderItemResponse> itemResponses = order.getItems().stream()
                 .map(this::convertItemToResponse)

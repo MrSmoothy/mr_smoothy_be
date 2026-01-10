@@ -36,7 +36,7 @@ services:
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://minio.thanonchai.site/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -59,7 +59,7 @@ services:
       SPRING_DATASOURCE_USERNAME: mr_smoothy_user
       SPRING_DATASOURCE_PASSWORD: mr_smoothy_password
       MINIO_ENDPOINT: http://minio:9000
-      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
+      MINIO_PUBLIC_ENDPOINT: http://minio.thanonchai.site
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin123
       MINIO_BUCKET_NAME: mr-smoothy-images
